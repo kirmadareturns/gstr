@@ -206,6 +206,7 @@ function displayGenTime(t, e, n, s) {
 function showStatus(t) {
     const e = getElement("status"),
         n = getElement("statusText");
+    if (!e || !n) return;
     t ? (e.hidden = !1, n.innerHTML = t) : (e.hidden = !0, n.innerHTML = "")
 }
 
@@ -232,6 +233,12 @@ returnConfig[configR3B.key] = configR3B, returnConfig[configR1.key] = configR1, 
     }
 }), !1), document.addEventListener("click", (function(t) {
     const e = t.target;
+    if (e && e.closest) {
+        const n = e.closest("#retryStartup");
+        if (n) return n.disabled = !0, void startupAsync();
+        const s = e.closest("#openReturnDashboard");
+        if (s) return s.disabled = !0, void intoReturnPage();
+    }
     if (t.target.classList.contains("yetoR1Retur")) {
         const n = t.target.dataset.period;
         e.disabled = !0;
@@ -387,12 +394,24 @@ async function startupAsync(t) {
             request: "get",
             url: gstn.ustatus(session.hostname)
         });
-        if (showStatus("!! Radhe Radhe !!  <br><br> [F5] Refresh! | Please Open GST Portal"), !s.status) return showStatus('Redirected to: <a href="https://services.gst.gov.in/services/login" target="_blank">gst.gov.in</a>'), await redirectgstPage(), showStatus("<span text-align='center'><br> You may not be login yet! at <b class='blink' style='color:blue;'>gst.gov.in </b><br><span style='color:grey; font-size:10px;'>** Please [F5] Refresh after login.</span></span><br><br>"), document.getElementById("NoticeBoard").style.display = "none", void(document.getElementById("passmanager").style.display = "block");
+        if (showStatus("!! Radhe Radhe !!  <br><br> [F5] Refresh! | Please Open GST Portal"), !s.status) {
+            showStatus('Redirected to: <a href="https://services.gst.gov.in/services/login" target="_blank">gst.gov.in</a>');
+            await redirectgstPage();
+            showStatus("<span text-align='center'><br> You may not be login yet! at <b class='blink' style='color:blue;'>gst.gov.in </b><br><span style='color:grey; font-size:10px;'>** Please [F5] Refresh after login.</span></span><br><br>");
+            const t = document.getElementById("NoticeBoard");
+            t && (t.style.display = "none");
+            const e = document.getElementById("passmanager");
+            return void(e && (e.style.display = "block"));
+        }
         const a = JSON.parse(s.response);
-        if (!a.regType) return showStatus("<span text-align='center'><br>You may not be login yet! at <b class='blink' style='color:blue;'>gst.gov.in </b><br><span style='color:grey; font-size:10px;'>** Please [F5] Refresh after login.</span></span><br><br>"), document.getElementById("NoticeBoard").style.display = "none", void(document.getElementById("passmanager").style.display = "block");
-        if ("return.gst.gov.in" !== session.hostname && "gstr2b.gst.gov.in" !== session.hostname && "payment.gst.gov.in" !== session.hostname) return showStatus("Please Wait...<i class='fa fa-spinner fa-pulse fa-3x fa-fw' aria-hidden='true'></i> || Press [F5] to Reload!"), setTimeout((() => {
-            location.reload()
-        }), 1e3), void await intoReturnPage();
+        if (!a.regType) {
+            showStatus("<span text-align='center'><br>You may not be login yet! at <b class='blink' style='color:blue;'>gst.gov.in </b><br><span style='color:grey; font-size:10px;'>** Please [F5] Refresh after login.</span></span><br><br>");
+            const t = document.getElementById("NoticeBoard");
+            t && (t.style.display = "none");
+            const e = document.getElementById("passmanager");
+            return void(e && (e.style.display = "block"));
+        }
+        if ("return.gst.gov.in" !== session.hostname && "gstr2b.gst.gov.in" !== session.hostname && "payment.gst.gov.in" !== session.hostname) return void showStatus("Please open the GST Return Dashboard in the active tab. <div class='mt-2'><button class='btn btn-outline-primary btn-sm' id='openReturnDashboard'>Open Return Dashboard</button> <button class='btn btn-outline-secondary btn-sm ml-2' id='retryStartup'>Retry</button></div>");
         await updateBusinessInfo(a)
     } catch (t) {
         console.error("Error during startupAsync:", t), showStatus("An error occurred!")
@@ -621,7 +640,20 @@ async function updateBusinessInfo(t) {
             gstin: n,
             regType: s
         } = t;
-        switch (session.businessName = e, session.gstin = n, getElement("businessName").innerHTML = session.businessName, getElement("businessGSTIN").innerHTML = "GSTIN: " + session.gstin, getElement("businessName2").innerHTML = session.businessName, getElement("businessGSTIN2").innerHTML = "GSTIN: " + session.gstin, getElement("gstin").value = session.gstin, getElement("businessInfo").hidden = !1, s) {
+        session.businessName = e, session.gstin = n;
+        const a = getElement("businessName");
+        a && (a.innerHTML = session.businessName);
+        const i = getElement("businessGSTIN");
+        i && (i.innerHTML = "GSTIN: " + session.gstin);
+        const o = getElement("businessName2");
+        o && (o.innerHTML = session.businessName);
+        const l = getElement("businessGSTIN2");
+        l && (l.innerHTML = "GSTIN: " + session.gstin);
+        const r = getElement("gstin");
+        r && (r.value = session.gstin);
+        const d = getElement("businessInfo");
+        d && (d.hidden = !1);
+        switch (s) {
             case "NT":
             case "TP":
             case "CA":
