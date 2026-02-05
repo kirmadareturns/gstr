@@ -1,0 +1,1095 @@
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <script src="pdfmake.min.js"></script>
+    <script src="vfs_fonts.js"></script>
+
+    <style type="text/css">
+      html {
+        font-size: 12px;
+      }
+
+      .container-body{
+      min-width:450px; 
+    border: 1px solid #ccc; 
+    margin:10px; 
+    background: linear-gradient(135deg, #e7f2f8, #93e1ff47);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 0 10px rgba(255, 255, 255, 0.8);
+   border-color: #00ffff; 
+   border-radius: 20px;
+
+    }
+
+          @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .blink {
+            animation: blink 3s infinite; 
+        }
+
+.slider {
+    width: 260px;
+    overflow: hidden;
+    position: relative;
+    height: 60px;
+}
+
+.slides {
+    display: flex;
+    transition: transform 2.0s ease-in-out;
+    height: 60px;
+    
+}
+
+.slides img {
+width: 250px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-right: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.slides img:hover {
+    transform: scale(1.08) rotateZ(1deg);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+}
+
+
+#imageModal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    padding-top: 150px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: rgb(0 22 31);
+    justify-content: center;  /* horizontal center */
+    align-items: center;      /* vertical center */
+  
+}
+
+#modalImg {
+    display: block;
+    margin: auto;
+   height: 380px; 
+    border-radius: 5px;
+    
+}
+
+#closeModal {
+   position: absolute;
+    top: 20px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.custom-select {
+  width: 150px;
+  border-radius: 15px;
+}
+
+
+.input-group {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex
+;
+    -ms-flex-wrap: wrap;
+    gap: 12px;
+    flex-wrap: wrap;
+    -ms-flex-align: stretch;
+    align-items: stretch;
+    width: 100%;
+    justify-content: space-evenly;
+}
+.row2{
+  width: 100%;
+  text-align: center;
+}
+
+.custom-select2 {
+   width: 100px;
+    border-radius: 15px;
+    border: 2px solid #007bff;
+ 
+    padding: 4px 8px;
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),  /* inner highlight */
+        0 3px 6px rgba(0, 0, 0, 0.4);              /* outer shadow */
+    font-weight: bold;
+   
+}
+
+.btn-primary{
+  border-radius: 10px 5px ;
+    border: 1px solid #d2e9e9a8;
+ 
+    padding: 4px 8px;
+    box-shadow:
+        inset 0 1px 2px rgba(255, 255, 255, 0.3),  /* inner highlight */
+        0 3px 6px rgba(0, 0, 0, 0.4);              /* outer shadow */
+    font-weight: bold;
+}
+
+
+.btn-group, .btn-group-vertical {
+    position: relative;
+    display: -ms-inline-flexbox;
+    display: inline-flex
+;
+    /* vertical-align: middle; */
+    gap: 5px;
+    /* border-radius: 10px; */
+}
+
+
+#container-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Scrollable content */
+#result {
+  height: 20%;
+  overflow-y: auto;       /* Add vertical scroll if needed */
+  padding-right: 8px;     /* Space for scrollbar */
+  word-break: break-word; /* Prevent text from overflowing */
+}
+#result::-webkit-scrollbar {
+  width: 6px;
+}
+
+#result::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+#result::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+::-webkit-scrollbar {
+    height: 6px; /* height of horizontal scrollbar */
+    width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #6c757d; /* scrollbar color */
+    border-radius: 10px; /* rounded edges */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* track background */
+}
+#result .result-tab {
+    border-collapse: collapse;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+}
+
+#result .result-tab thead {
+    position: sticky;
+    top: 29px;
+    background-color: #004080;
+    color: white;
+    z-index: 10;
+    text-align: center;
+}
+#result .result-tab th{
+    border: 1px solid #ddd;
+    padding: 8px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+#result .result-tab td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    white-space: nowrap;
+    text-align: right;
+}
+
+#result .result-tab tbody tr:nth-child(even) {
+    background-color: #e6f2ff;
+    ;
+}
+
+#result .result-tab tbody tr:last-child {
+    background-color: #7e92af !important;
+    color: white;
+    font-weight: bold;
+}
+
+#result .result-tab tbody tr:hover {
+    background-color: #d0e7ff;
+}
+
+#b2cs table.result-tab td:nth-child(-n+3) {
+    text-align: left;
+}
+
+#b2b table.result-tab td:nth-child(-n+6){
+    text-align: left;
+}
+
+#cdn table.result-tab td:nth-child(-n+7){
+    text-align: left;
+}
+
+#tds table.result-tab td:nth-child(-n+4){
+    text-align: left;
+}
+
+#ecom table.result-tab td:nth-child(-n+4){
+    text-align: left;
+}
+
+#Credit table.result-tab tr:nth-child(8),
+#Credit table.result-tab tr:nth-child(9){
+    background: #d5d5d5;
+    color: #c47878;
+}
+
+#Computation table.result-tab tr:nth-child(3),
+#Computation table.result-tab tr:nth-child(4),
+#Computation table.result-tab tr:nth-child(5),
+#Computation table.result-tab tr:nth-child(6) {
+    background: #e8e8e8;
+    color: #a3a3a3;
+    font-style: italic;
+}
+
+#allNoticesTable table.result-tab td:nth-child(11){
+white-space: wrap;
+width: 120px;
+}
+
+#imstable table.result-tab td:nth-child(1),
+#imstable table.result-tab td:nth-child(2),
+#imstable table.result-tab td:nth-child(6){
+text-align: left;
+}
+
+
+
+</style>
+<style>
+  @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+    .checkbox-wrapper-14 input[type=checkbox] {
+      --active: #275EFE;
+      --active-inner: #fff;
+      --focus: 2px rgba(39, 94, 254, .3);
+      --border: #BBC1E1;
+      --border-hover: #275EFE;
+      --background: #fff;
+      --disabled: #F6F8FF;
+      --disabled-inner: #E1E6F9;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      height: 21px;
+      outline: none;
+      display: inline-block;
+      vertical-align: top;
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+      border: 1px solid var(--bc, var(--border));
+      background: var(--b, var(--background));
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.2s;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:after {
+      content: "";
+      display: block;
+      left: 0;
+      top: 0;
+      position: absolute;
+      transition: transform var(--d-t, 0.3s) var(--d-t-e, ease), opacity var(--d-o, 0.2s);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:checked {
+      --b: var(--active);
+      --bc: var(--active);
+      --d-o: .3s;
+      --d-t: .6s;
+      --d-t-e: cubic-bezier(.2, .85, .32, 1.2);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled {
+      --b: var(--disabled);
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled:checked {
+      --b: var(--disabled-inner);
+      --bc: var(--border);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled + label {
+      cursor: not-allowed;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:hover:not(:checked):not(:disabled) {
+      --bc: var(--border-hover);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:focus {
+      box-shadow: 0 0 0 var(--focus);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch) {
+      width: 21px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):after {
+      opacity: var(--o, 0);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):checked {
+      --o: 1;
+    }
+    .checkbox-wrapper-14 input[type=checkbox] + label {
+      display: inline-block;
+      vertical-align: middle;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch) {
+      border-radius: 7px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):after {
+      width: 5px;
+      height: 9px;
+      border: 2px solid var(--active-inner);
+      border-top: 0;
+      border-left: 0;
+      left: 7px;
+      top: 4px;
+      transform: rotate(var(--r, 20deg));
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):checked {
+      --r: 43deg;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch {
+      width: 38px;
+      border-radius: 11px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:after {
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      background: var(--ab, var(--border));
+      transform: translateX(var(--x, 0));
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:checked {
+      --ab: var(--active-inner);
+      --x: 17px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:disabled:not(:checked):after {
+      opacity: 0.6;
+    }
+  }
+
+  .checkbox-wrapper-14 * {
+    box-sizing: inherit;
+  }
+  .checkbox-wrapper-14 *:before,
+  .checkbox-wrapper-14 *:after {
+    box-sizing: inherit;
+  }
+</style>
+    <title>XLSDEAL GSTR-N</title>
+  </head>
+  <body class="container-body">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+    <!---script src="jquery-3.6.0.min.js"></script -->
+    <script src="bootstrap.bundle.min.js"></script>
+    <script src="jszip.min.js"></script>
+    <script src="moment.min.js"></script>
+    <script src="analytic.js"></script>
+      <script src="exceljs.min.js"></script>
+  <script src="FileSaver.min.js"></script>
+  <script src="download_json_to_pdf.js"></script>
+  <script src="download_json_to_excel.js"></script>
+    <script src="popup.js"></script>
+    <div class="container-fluid">
+
+
+
+      <div id="businessInfo" hidden="true">
+       <div class="row2">
+        <button class="btn btn-outline-warning" style="position:fixed; top:2%; right:2%; border-radius: 12px;" id="refresher"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+         <button class="btn btn-outline-danger" style="position:fixed; top:2%; left:2%; border-radius: 12px;" id="meLogout"><i class="fa fa-sign-out" aria-hidden="true"></i></button>
+
+   <button class="btn btn-outline-success" style="position:fixed; top:2%; right:6%; border-radius: 12px;" id="help"><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+
+
+          <b id="businessName" style="color:#007bff; font-size:20px;">Business Name</b> 
+
+      <br>
+          <b id="businessGSTIN" style="color:#000aee; font-size:10px;">GSTIN</b> | <b class="blink" id="xlsdealAllwed" style="color:grey; font-size:8px;"></b>
+        </div>
+         
+        
+        <div id="workspace" class="mb-2" hidden="true">
+
+          <div class="row input-group">
+             <select class="custom-select2" style="width:100px; border-radius: 15px;" id="finYear">
+            </select>
+            <button class="btn btn-primary"  type="button" value="G3B" id="g3b">GSTR3B</button>
+            <button class="btn btn-primary"  type="button" value="G1" id="g1">GSTR1</button>
+           <button class="btn btn-primary"  type="button" value="G2A" id="g2a">GSTR2A</button>
+           <button class="btn btn-primary"  type="button" value="G2AEXL" id="g2aexl" hidden>GSTR2A-<span style="color:#3affd5;">XL</span></button>
+           <button class="btn btn-primary"  type="button" value="G2B" id="g2b">GSTR2B</button>
+           <button class="btn btn-primary"  type="button" value="G2BEXL" id="g2bexl" hidden>GSTR2B-<span style="color:#3affd5;">XL</span></button>
+            <button class="btn btn-primary"  type="button" value="IMS" id="ims">I M S</button>
+           <button class="btn btn-primary"  type="button" value="CHA" id="cha">CHALLAN</button>
+           <button class="btn btn-primary"  type="button" value="G9" id="g9">GSTR9</button>
+
+           <button class="btn btn-primary" style="background:#4CAF50;" type="button" value="moreBtn" id="moreBtn">More..</button>
+           
+
+            <select class="custom-select" id="gstReturnType" hidden>
+            </select>
+           
+            <div class="input-group-append">
+              <button class="btn btn-primary" type="button" id="refresh" hidden>Refresh</button>
+            </div>
+          </div>
+
+
+        </div>
+        
+        
+
+
+        <div id="banner-generating" class="row" hidden>
+          <div class="alert alert-warning py-1 px-2" role="alert">
+            GST Portal generating files {Took sometime}. Those files will be generated even if you close this window.
+          </div>
+        </div>
+        
+        <div id="returnStatus">
+          
+        </div>
+        
+      </div>
+      <div class="row" id="status" style="justify-content: center; margin-top: 80px;">
+        <h4 id="statusText">Radhe Radhe! <br><br><i class="fa fa-spinner" aria-hidden="true"></i> Loading...</h4>  
+      </div>
+      <!-- Popup Overlay -->
+
+<div id="ims-penal" style="display:none;">
+      <span style="margin-left: 7%; background: #ffc0cb00;" class="btn btn-outline-info">
+        <select class="custom-select2" style="width:100px; border-radius: 15px; border:pink;" id="imsinwadty" ><option>ALL</option></select>
+     <button class="btn btn-outline-info" value="imsinward" id="imsinward" style="margin-left: 2%;"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Inward</button>
+ </span>
+     <span style="margin-left: 7%; background: #ffc0cb00;" class="btn btn-outline-info">
+     <select class="custom-select2" style="width:100px; border-radius: 15px; border:pink;" id="monthSelect"></select>
+     <button class="btn btn-outline-info" value="imsoutward" id="imsoutward"><i class="fa fa-arrow-circle-right" aria-hidden="true"></i> Outward</button>
+    </span>
+    <p style="color:grey; font-size: 10px;">More then 500 line items counts will not appear then...</p>
+</div>
+
+
+
+<div id="more-penal" style="display:none; width: 100%;">
+        <div class="row2">
+          <b id="businessName2" style="color:#007bff; font-size:20px;"></b><br>
+          <b id="businessGSTIN2" style="color:#000aee; font-size:10px;" ></b> | <b class="blink" id="xlsdealAllwed2" style="color:grey; font-size:8px;"></b>
+        </div>
+
+<div class="row input-group">
+     
+<select class="custom-select2" style="width:100px; border-radius: 15px; border-color:#359d13;" id="finYearcl"> </select>
+ <button class="btn btn-primary" style="background: #359d13;" type="button" value="gstinStatusBtn" id="gstinStatusBtn"><i class="fa fa-search" aria-hidden="true"></i> GSTIN</button>
+ <button class="btn btn-primary" style="background: #359d13;" type="button" value="CL" id="cl">Cash Ledger</button>
+<button class="btn btn-primary" style="background: #359d13;" type="button" value="CCL" id="ccl">Credit Ledger</button>
+
+<button class="btn btn-primary" style="background: #359d13;" type="button" value="RTN" id="rtndiv"><i class="fa fa-calendar" aria-hidden="true"></i> Returns</button>
+
+<button class="btn btn-primary" style="background: #359d13;" type="button" value="gstr8a" id="gstr8a">GSTR-8A</button>
+<button class="btn btn-primary" style="background: #359d13;" type="button" value="NOTICS" id="noticsBtn"><i class="fa fa-commenting-o" aria-hidden="true"></i> Notices</button>
+
+      <button class="btn btn-outline-danger" style="position:fixed; top:2%; right:2%; border-radius: 15px; margin-left: 3%;" id="closeBtn"><i class="fa fa-arrow-circle-left" aria-hidden="true"></i> Back</button>
+</div>
+<br><br>
+<div id="cashLedger-penal" style="display:none;">
+  <h5>Cash Ledger :
+     <button class="btn btn-outline-info" id="CledgerViewBtn" style="margin-left: 2%;"><i class="fa fa-sitemap" aria-hidden="true"></i> View</button>
+        <button class="btn btn-success" id="CledgerBtn" style="margin-left: 3%;"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+        <span id="clLedgerBtnDyan"><button type="button" class="btn btn-outline-primary" id="upload-gen-cledger" style="margin-left: 2%;" >Send to xlsdeal.com</button></span>
+      </h5>
+  
+</div>
+
+<div id="creditLedger-penal" style="display:none;">
+  <h5>Credit Ledger :
+    <button class="btn btn-outline-info" id="CcledgerViewBtn" style="margin-left: 2%;"><i class="fa fa-sitemap" aria-hidden="true"></i> View</button>
+        <button class="btn btn-success" id="CcledgerBtn" style="margin-left: 3%;"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+        <span id="cclLedgerBtnDyan"><button type="button" class="btn btn-outline-primary" id="upload-gen-ccledger" style="margin-left: 2%;" >Send to xlsdeal.com</button></span>
+  </h5>
+</div>
+
+<div id="m2mreturns-penal" style="display:none;">
+          <h5>Returns Details :
+<button class="btn btn-outline-info" id="view-gen-RTN" style="margin-left: 2%;"><i class="fa fa-sitemap" aria-hidden="true"></i> View</button>
+<button class="btn btn-success" id="downlaod-gen-RTN" style="margin-left: 3%;"><i class="fa fa-download" aria-hidden="true"></i> Download</button>
+<button type="button" class="btn btn-outline-primary" id="upload-gen-RTN" style="margin-left: 2%;" >Send to xlsdeal.com</button>
+  </h5>
+</div>
+
+ <div id="notice-penal" style="display:none;">
+        
+<button class="btn btn-outline-info" id="NoticeViewBtn" style="margin-left: 2%;"><i class="fa fa-sitemap" aria-hidden="true"></i> View</button>
+<input class="btn btn-outline-info" type="text" id="searchBox-Notice" placeholder="Search..." hidden>        
+<button class="btn btn-outline-primary" id="downExlNotices" style="margin-left: 3%;  border-radius: 15px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>
+
+
+<div id="newTableContainer"></div>
+
+<table id="notces-details" border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse;width:100%" hidden>
+  <thead>
+    <tr>
+      <th>SL</th>
+      <th>ARN.DATE</th>
+      <th>ARN</th>
+      <th>TYPES</th>
+      <th>FY</th>
+      <th>REFID</th>
+      <th>REF.DATE</th>
+      <th>DUE EDATE</th>
+      <th>PAYMENT DUE</th>
+      <th >DESC</th>
+      <th >VIEW</th>
+
+
+    </tr>
+  </thead>
+  <tbody id="notces-details-body"></tbody>
+</table>
+</div>
+
+
+
+
+ <div id="gstinsearch-penal" style="display:none;">
+
+    <h5>Search GSTIN :
+  <lable class="btn btn-outline-primary" style="margin-left: 2%;" >
+    <input type="radio" name="choice" id="basicInfo" checked>Basic Info <input type="radio" name="choice" id="withAddress" unchecked>Address <input type="radio" name="choice" id="withFilling" unchecked>Filling Info</lable>
+  <button class="btn btn-outline-info" id="fetchGSINs" ><i class="fa fa-search-plus" aria-hidden="true"></i> Fetch Info</button>  |  
+
+      <button class="btn btn-outline-primary" id="downExlgstinsStatusbtn" style="display:none; border-radius: 15px;">
+        <i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>
+
+<button type="button" class="btn btn-outline-primary" id="upload-gen-GSTIN" style="display:none; margin-left: 2%;" >Send to xlsdeal.com</button>
+      </h5>
+<br>
+<textarea style="margin-left: 2%;" id="mygstinslist" rows="15" cols="20" placeholder="Paste GSTINs from Excel {columnar}"></textarea>
+</div>
+
+
+
+<div id="gstr8a-penal" style="display:none;">
+       <button class="btn btn-outline-info" id="getallgstr2BBtn" style="margin-left: 2%;"><i class="fa fa-sitemap" aria-hidden="true"></i> VIEW Cancelled</button>
+        <button class="btn btn-outline-success" id="getallgstr2BBtnDownload" style="margin-left: 3%; display: none; border-radius: 15px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>
+  
+</div>
+
+
+
+
+      </div>
+
+
+
+
+     
+
+<br><br>
+    <div id="popupContent" >
+      <div style="top: 16%;    right: 4%;    z-index: 100;" align="right">
+      <button id="minmizer" class="btn btn-outline-danger" style="border-radius: 20px; display: none;"  type="button" ><i class="fa fa-minus-circle" aria-hidden="true"></i></button><button class="btn btn-outline-danger" style=" border-radius: 20px;  display: none;" type="button" id="maximizer" ><i class="fa fa-arrows-alt" aria-hidden="true"></i></button>
+      </div>
+      <div id="result" style="height:75%"></div>
+
+
+
+
+<style>
+
+.unmatch-cell { background: #f5c6cb; outline: 1px solid #e48b99; }
+.changed-cell { background: #d8ffbb; outline: 1px solid #07d129; } /* for Action diff */
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    cursor: pointer;
+    position: sticky; 
+    top: 0;            /* stick within its container */
+       z-index: 20;
+       width: 100%;
+       background: #e6f8ff;
+}
+.tab {
+    padding: 4px 20px;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    background: #f1f1f1;
+    margin-right: 5px;
+    border-radius: 5px 5px 0 0;
+    white-space: nowrap;
+}
+.tab.active {
+    background: white;
+    font-weight: bold;
+}
+.tab-content {
+    display: none;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+.tab-content.active {
+    display: block;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid #999;
+    padding: 5px;
+    text-align: left;
+}
+</style>
+
+
+
+
+    </div>
+
+
+      
+      <div class="row mb-0" style="height: fit-content; background: #e6f4fb;   justify-content: space-between;    position: fixed;    bottom: 0.2px;    width: 98%;">
+        <p style="font-size: 11; color: #19a2df;" class="text-justify mb-0"><img class="float-left mr-2 " src="https://xlsdeal.com/images/xlsdeal.png" alt="xlsdeal GST" height="50" width="56"/>All Right Reserved @2023 <br><i class="fa fa-envelope-o" aria-hidden="true"></i> xlsdeal@gmail.com<br><span id="mewhatsapp" style="cursor: pointer;"><i class="fa fa-whatsapp" aria-hidden="true"></i> : 9038129731</span></p>
+
+<div class="slider">
+        <div class="slides" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/1/1.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/1/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/2/2.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/2/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/3/3.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/3/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/4/4.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/4/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/5/5.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/5/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/6/6.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/6/" >
+  <img src="https://xlsdeal.com/chrome_extension/GSTR-N/7/7.jpg" web="https://xlsdeal.com/chrome_extension/GSTR-N/7/" >
+
+        </div>
+</div>
+<div id="imageModal">
+    <span id="closeModal"></span>
+    
+    <!--img id="modalImg" src=""--->
+    <span id="open_web_link"></span>
+</div>
+
+  
+
+
+
+
+
+
+<style>
+  @supports (-webkit-appearance: none) or (-moz-appearance: none) {
+    .checkbox-wrapper-14 input[type=checkbox] {
+      --active: #275EFE;
+      --active-inner: #fff;
+      --focus: 2px rgba(39, 94, 254, .3);
+      --border: #BBC1E1;
+      --border-hover: #275EFE;
+      --background: #fff;
+      --disabled: #F6F8FF;
+      --disabled-inner: #E1E6F9;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      height: 21px;
+      outline: none;
+      display: inline-block;
+      vertical-align: top;
+      position: relative;
+      margin: 0;
+      cursor: pointer;
+      border: 1px solid var(--bc, var(--border));
+      background: var(--b, var(--background));
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.2s;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:after {
+      content: "";
+      display: block;
+      left: 0;
+      top: 0;
+      position: absolute;
+      transition: transform var(--d-t, 0.3s) var(--d-t-e, ease), opacity var(--d-o, 0.2s);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:checked {
+      --b: var(--active);
+      --bc: var(--active);
+      --d-o: .3s;
+      --d-t: .6s;
+      --d-t-e: cubic-bezier(.2, .85, .32, 1.2);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled {
+      --b: var(--disabled);
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled:checked {
+      --b: var(--disabled-inner);
+      --bc: var(--border);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:disabled + label {
+      cursor: not-allowed;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:hover:not(:checked):not(:disabled) {
+      --bc: var(--border-hover);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:focus {
+      box-shadow: 0 0 0 var(--focus);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch) {
+      width: 21px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):after {
+      opacity: var(--o, 0);
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):checked {
+      --o: 1;
+    }
+    .checkbox-wrapper-14 input[type=checkbox] + label {
+      display: inline-block;
+      vertical-align: middle;
+      cursor: pointer;
+      margin-left: 4px;
+    }
+
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch) {
+      border-radius: 7px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):after {
+      width: 5px;
+      height: 9px;
+      border: 2px solid var(--active-inner);
+      border-top: 0;
+      border-left: 0;
+      left: 7px;
+      top: 4px;
+      transform: rotate(var(--r, 20deg));
+    }
+    .checkbox-wrapper-14 input[type=checkbox]:not(.switch):checked {
+      --r: 43deg;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch {
+      width: 38px;
+      border-radius: 11px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:after {
+      left: 2px;
+      top: 2px;
+      border-radius: 50%;
+      width: 17px;
+      height: 17px;
+      background: var(--ab, var(--border));
+      transform: translateX(var(--x, 0));
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:checked {
+      --ab: var(--active-inner);
+      --x: 17px;
+    }
+    .checkbox-wrapper-14 input[type=checkbox].switch:disabled:not(:checked):after {
+      opacity: 0.6;
+    }
+  }
+
+  .checkbox-wrapper-14 * {
+    box-sizing: inherit;
+  }
+  .checkbox-wrapper-14 *:before,
+  .checkbox-wrapper-14 *:after {
+    box-sizing: inherit;
+  }
+</style>
+
+
+
+  <div id="loginstatus" hidden></div>
+  
+  <script src="view_json_table.js"></script>
+  <script src="xlsx.full.min.js"></script>
+
+        
+      </div>
+    </div>
+
+<style>
+   #popup {
+    display: none;                 /* start hidden */
+    position: fixed; inset: 0;     /* top:0; right:0; bottom:0; left:0 */
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+  /* Show state */
+  #popup.show {
+    display: flex;                 /* show as centered flex */
+  }
+  /* White box */
+  #popup-box {
+    background: #c7dfdc;
+    padding: 20px;
+    max-height: 80vh;
+    max-width: 100vw;
+    overflow: auto;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,.5);
+  }
+  #popup table { border-collapse: collapse; width: 100%; }
+  #popup td { border: 1px solid #a2a2a2; vertical-align: top; }
+  #popup td:first-child { font-weight: 350; width: 10%; color:#184f66; vertical-align: middle; }
+</style>
+
+<div id="popup">
+  <div id="popup-box">
+    <div id="popup-content"></div>
+  </div>
+</div>
+
+<style> 
+.myfirtable h2 { 
+  background: #003366; 
+  color: white; 
+  padding: 4px; 
+  border-radius: 5px; 
+    font-size: 10px; 
+} 
+
+.myfirtable table { 
+  border-collapse: collapse; 
+  width: 100%; 
+  margin-bottom: 40px; 
+} 
+
+.myfirtable th, 
+.myfirtable td { 
+  border: 1px solid #bfb9b9; 
+  padding: 1px; 
+  text-align: right; 
+  font-size: 12px; 
+} 
+
+.myfirtable th { 
+  background: #dbeafe; 
+} 
+
+.myfirtable thead tr:nth-child(2) th {
+  text-align: center !important;
+}
+
+.myfirtable td:first-child, 
+.myfirtable th:first-child { 
+  text-align: left; 
+  width: 70px;
+} 
+
+/* 🔥 Style for total row */ 
+.total-row { 
+  font-weight: bold; 
+  background-color: #fffad7; 
+} 
+
+#result iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+</style>
+
+
+
+ <style>
+        #AddIcon {
+  box-shadow: 0px 4px 10px rgb(32 69 101);
+    color: #165597;
+     border-color: aqua;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        #SearchIcon {
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgb(32 69 101);
+    border: none;
+    color: #258544;
+    background: #ffd7db;
+
+
+        }
+
+    #adddiv {
+     position: fixed;
+    width: 340px;
+    padding: 20px;
+    border-radius: 10px;
+    left: 35%;
+    top: 24%;
+    bottom: 0;
+    height: 400px;
+    overflow: hidden;
+            display: none;
+            background-color: #fff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #search {
+            border-color: aqua;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #searchdiv {
+               position: fixed;
+    width: 340px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #fff;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    left: 35%;
+    top: 24%;
+    bottom: 0;
+    height: 400px;
+    overflow: hidden;
+        }
+
+        .input-field {
+            margin: 15px 0;
+        }
+
+        .input-field label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-field input {
+            width: 100%;
+            padding: 4px;
+            border: 1px solid #2fbf6f;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        #credentialsList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #credentialsList li {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #c6ef7161;
+            margin: 5px 0;
+            padding: 3px;
+            border-radius: 8px 1px 8px 1px;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgb(51 134 99 / 51%);
+        }
+
+        #credentialsList li:hover {
+            cursor: pointer;
+            background: #c0f8ff;
+            transform: scale(1.05);
+        }
+
+        .delete-button {
+            border-radius: 50%;
+            border: none;
+            background: #ff838354;
+            color: gray;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .delete-button:hover {
+            color: #c50101;
+            background: #f56565;
+            border-radius: 8px 1px 8px 1px;
+        }
+
+    </style>
+</head>
+
+<div id='passmanager' style='display:none'>
+    <div id='adddiv' style='background:#90ee904f;'>
+     <h4>Save your GST Credential Here</h4><hr>
+        <p id='domainfor' style='position:fixed; bottom:0; right: 16px; color: gray;' hidden></p>
+        <div class='input-field'>
+            <label for='userId0'>GST User ID :</label>
+            <input type='text' id='userId0' />
+        </div>
+        <div class='input-field'>
+            <label for='password0'>GST Password :</label>
+            <input type='password' id='password0' />
+        </div>
+
+        <div class='input-field'>
+            <label for='nickname0'>Name as you Remember :</label>
+            <input type='text' id='nickname0' maxlength='26' />
+        </div>
+        <button id='SearchIcon'>  Cancel </button> | 
+        <button id='save' style='background: #a3ffd0;border: 1px solid yellowgreen; box-shadow: 0px 4px 10px rgb(32 69 101);
+    color: #165597;
+     border-color: aqua;
+            border-radius: 10px;'>Save to Browser</button>
+ 
+            <hr>
+<H5>✅ Declaration: Your credentials will be stored in the browser. Please use this feature only on your personal computer.</H5>
+    </div>
+
+
+    <div id='searchdiv' align='center' style='background:#c1fafd4f;'>
+        <p id='domainfor2' style='position:fixed; top:0; left:55px; color: gray;' hidden></p>
+        
+        <input type='text' id='search' placeholder='Search by Name' /> <button id='AddIcon'> <i class="fa fa-pencil-square-o fa-1x" aria-hidden="true"> Create</i> </button><hr>
+<div id="captchaSection" style="display:none"><br><br>
+  <img id="captchaImg" alt="Captcha" style="width: 300px;"/><br/>
+  <br>
+  <input type="text" id="captchaInput" placeholder="Enter Captcha"/>
+
+  <button id="captchaSubmit">Submit</button>
+
+  <hr><b>Note: If You Enter Wrong Captcha, Then Please [F5] Refresh your Browser Once.</b>
+</div>
+        <ul id='credentialsList'>
+          </ul>
+
+      
+    </div>
+
+
+<div id="resultPass" hidden></div>
+
+</div>
+
+    <script src='pass-popup.js'></script>
