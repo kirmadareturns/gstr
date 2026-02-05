@@ -1,1 +1,1721 @@
-function maximizerfn(){chrome.windows.getCurrent({},(function(t){chrome.windows.update(t.id,{state:"maximized"})}));const t=document.getElementById("returnStatus"),a=document.getElementById("result");document.getElementById("maximizer").style.display="none",document.getElementById("minmizer").style.display="block",t.style.display="none",a.style.height="75%"}function formatMonthYear(t){const a=parseInt(t.slice(0,2),10)-1,e=t.slice(2);return new Date(e,a).toLocaleString("en-GB",{month:"long",year:"numeric"})}function gstr1(t,a){const e=document.getElementById("result");e.innerHTML=`\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="b2cs">B2CS</div>\n        <div class="tab" data-target="b2cl">B2CL</div>\n         <div class="tab" data-target="nil">NIL</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n        <div class="tab" data-target="cdna">CDNA</div>\n        <div class="tab" data-target="expo">EXPO</div>\n         <div class="tab" data-target="hsn">HSN</div>\n        <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n            <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR1: ${formatMonthYear(t.fp)} | Dt: ${t.fil_dt}</span>\n\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        \n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="b2cs" class="tab-content"></div>\n        <div id="b2cl" class="tab-content"></div>\n       <div id="nil" class="tab-content"></div> \n        <div id="cdn" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n        <div id="cdna" class="tab-content"></div>\n        <div id="expo" class="tab-content"></div>\n        <div id="hsn" class="tab-content"></div>\n    `,maximizerfn(),e.querySelectorAll(".tab").forEach((t=>{t.addEventListener("click",(()=>{e.querySelectorAll(".tab").forEach((t=>t.classList.remove("active"))),e.querySelectorAll(".tab-content").forEach((t=>t.classList.remove("active"))),t.classList.add("active"),document.getElementById(t.dataset.target).classList.add("active")}))})),document.getElementById("exportBtn").addEventListener("click",(()=>{const t=XLSX.utils.book_new(),e=t=>(t?.innerText??t?.textContent??"").trim();document.querySelectorAll(".tab-content table").forEach((a=>{const i=[...a.rows],n=Math.max(...i.map((t=>t.cells.length))),d=Array(n).fill(!1);for(let t=1;t<i.length;t++)for(let a=0;a<n;a++){const n=e(i[t].cells[a]);("-"===n||/^\d{2}-\d{2}-\d{4}$/.test(n))&&(d[a]=!0)}const r=i.map(((t,a)=>[...t.cells].map(((t,i)=>0===a||d[i]?e(t):(t=>{const a=t.trim();if(!a||"-"===a)return t;const e=a.replace(/,/g,"");return/^-?\d+(\.\d+)?$/.test(e)?+e:t})(e(t)))))),o=XLSX.utils.aoa_to_sheet(r),l=XLSX.utils.decode_range(o["!ref"]);d.forEach(((t,a)=>{if(t)for(let t=1;t<=l.e.r;t++){const e=o[XLSX.utils.encode_cell({r:t,c:a})];e&&(e.t="s",delete e.z,delete e.w)}})),XLSX.utils.book_append_sheet(t,o,(a.closest(".tab-content").id||"SHEET").toUpperCase().slice(0,31))})),XLSX.writeFile(t,`${a}_GSTR1_${session.gstin}.xlsx`)})),createB2BTable(t,a),createB2CSTable(t,a),createB2CLTable(t,a),createNILTable(t,a),createCDNTable(t,a),createB2BATable(t,a),createCDNATable(t,a),createEXPOTable(t,a),createHSNTable(t,a);document.getElementById("tableSearch").addEventListener("input",(function(){const t=this.value.toLowerCase();document.querySelectorAll("#result .result-tab").forEach((a=>{a.querySelectorAll("tbody tr").forEach((a=>{const e=a.innerText.toLowerCase();a.style.display=e.includes(t)?"":"none"}))}))}))}function createB2BTable(t,a){let e=[],i=0;if(!t.b2b)return void(document.getElementById("b2b").innerHTML="<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.b2b.forEach((t=>{let d=t.ctin||"Unknown Trader";(t.inv||[]).forEach((t=>{i++;let r=0,o=0,l=0,S=0,s=0;(t.itms||[]).forEach((t=>{r+=t.itm_det?.txval||0,o+=t.itm_det?.iamt||0,l+=t.itm_det?.camt||0,S+=t.itm_det?.samt||0,s+=t.itm_det?.csamt||0}));let T=o+l+S,m=r?+(T/r*100).toFixed(2):0;e.push({FP:a,SL:i,Inv_Typ:t.inv_typ||"",RcV:t.rchrg||"",POS:t.pos||"",GSTIN_of_supplier:d,Invoice_number:t.inum||"",Invoice_Date:t.idt||"",Taxable:indianFormat(r),IGST:indianFormat(o),CGST:indianFormat(l),SGST:indianFormat(S),CESS:indianFormat(s),GST:indianFormat(T.toFixed(2)),TOTAL:indianFormat(t.val)||"",Rate:m}),n.Taxable+=r,n.IGST+=o,n.CGST+=l,n.SGST+=S,n.CESS+=s,n.GST+=T,n.TOTAL+=t.val||0}))})),e.push({FP:"",SL:"",Inv_Typ:"",RcV:"",POS:"",GSTIN_of_supplier:"Total",Invoice_number:"",Invoice_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:""}),document.getElementById("b2b").innerHTML=makeTableHTML(e,!0)}function createB2CSTable(t,a){const e={"01":"Jammu & Kashmir","02":"Himachal Pradesh","03":"Punjab","04":"Chandigarh","05":"Uttarakhand","06":"Haryana","07":"Delhi","08":"Rajasthan","09":"Uttar Pradesh",10:"Bihar",11:"Sikkim",12:"Arunachal Pradesh",13:"Nagaland",14:"Manipur",15:"Mizoram",16:"Tripura",17:"Meghalaya",18:"Assam",19:"West Bengal",20:"Jharkhand",21:"Odisha",22:"Chhattisgarh",23:"Madhya Pradesh",24:"Gujarat",25:"Daman & Diu",26:"Dadra & Nagar Haveli",27:"Maharashtra",28:"Andhra Pradesh",29:"Karnataka",30:"Goa",31:"Lakshadweep",32:"Kerala",33:"Tamil Nadu",34:"Puducherry",35:"Andaman & Nicobar Islands",36:"Telangana",37:"Andhra Pradesh (New)",38:"Ladakh",97:"Other Territory"};let i=[],n=0;if(!t.b2cs)return void(document.getElementById("b2cs").innerHTML="<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR B2CS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let d={Amount:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.b2cs.forEach((t=>{n++;let r=(t.iamt||0)+(t.camt||0)+(t.samt||0),o=r+(t.txval||0),l=t.pos?String(t.pos).padStart(2,"0"):"",S=e[l]?`${l} - ${e[l]}`:l;i.push({FP:a,SL:n,State:S,Amount:indianFormat(t.txval)||0,IGST:indianFormat(t.iamt)||0,CGST:indianFormat(t.camt)||0,SGST:indianFormat(t.samt)||0,CESS:indianFormat(t.csamt)||0,GST:indianFormat(r.toFixed(2)),TOTAL:indianFormat(o.toFixed(2)),Rate:t.rt||0}),d.Amount+=t.txval||0,d.IGST+=t.iamt||0,d.CGST+=t.camt||0,d.SGST+=t.samt||0,d.CESS+=t.csamt||0,d.GST+=r,d.TOTAL+=o})),i.push({FP:"",SL:"",State:"Total",Amount:indianFormat(d.Amount.toFixed(2)),IGST:indianFormat(d.IGST.toFixed(2)),CGST:indianFormat(d.CGST.toFixed(2)),SGST:indianFormat(d.SGST.toFixed(2)),CESS:indianFormat(d.CESS.toFixed(2)),GST:indianFormat(d.GST.toFixed(2)),TOTAL:indianFormat(d.TOTAL.toFixed(2)),Rate:""}),document.getElementById("b2cs").innerHTML=makeTableHTML(i,!0)}function createB2CLTable(t,a){let e=[],i=0;if(!t.b2cl)return void(document.getElementById("b2cl").innerHTML="<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR B2CL</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Amount:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.b2cl.forEach((t=>{let a=t.pos||"";(t.inv||[]).forEach((t=>{i++;let d=0,r=0,o=0,l=0,S=0;(t.itms||[]).forEach((t=>{d+=t.itm_det?.txval||0,r+=t.itm_det?.iamt||0,o+=t.itm_det?.camt||0,l+=t.itm_det?.samt||0,S+=t.itm_det?.csamt||0}));let s=r+o+l,T=d?+(s/d*100).toFixed(2):0,m=d+s;e.push({SL:i,POS:a||"",Bill_number:t.inum||"",Bill_Date:t.idt||"",Taxable:indianFormat(d),IGST:indianFormat(r),CGST:indianFormat(o),SGST:indianFormat(l),CESS:indianFormat(S),GST:indianFormat(s.toFixed(2)),TOTAL:indianFormat(m.toFixed(2)),Rate:T}),n.Taxable+=d,n.IGST+=r,n.CGST+=o,n.SGST+=l,n.CESS+=S,n.GST+=s,n.TOTAL+=m}))})),e.push({SL:"",POS:"Total",Bill_number:"",Bill_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:""}),document.getElementById("b2cl").innerHTML=makeTableHTML(e,!0)}function createNILTable(t,a){let e=[];if(!t.nil)return void(document.getElementById("nil").innerHTML="<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR NIL</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let i={Amount:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.nil.inv.forEach((t=>{0;let a=0+(t.expt_amt||0);e.push({Supply_Type:t.sply_ty+" Exempt",Amount:indianFormat(t.expt_amt)||0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:indianFormat(t.expt_amt)||0,Rate:t.rt||0}),e.push({Supply_Type:t.sply_ty+" NIL",Amount:indianFormat(t.nil_amt)||0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:indianFormat(t.nil_amt)||0,Rate:t.rt||0}),e.push({Supply_Type:t.sply_ty+" NA",Amount:indianFormat(t.ngsup_amt)||0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:indianFormat(t.ngsup_amt)||0,Rate:t.rt||0}),i.Amount+=t.expt_amt||0+t.nil_amt||0+t.ngsup_amt||0,i.IGST+=0,i.CGST+=0,i.SGST+=0,i.CESS+=0,i.GST+=0,i.TOTAL+=a})),e.push({Supply_Type:"Total",Amount:indianFormat(i.Amount.toFixed(2)),IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:indianFormat(i.TOTAL.toFixed(2)),Rate:""}),document.getElementById("nil").innerHTML=makeTableHTML(e,!0)}function createCDNTable(t,a){let e=[],i=0;if(!t.cdnr)return void(document.getElementById("cdn").innerHTML="<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR CDNR</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.cdnr.forEach((t=>{let d=t.ctin||"Unknown Trader";(t.nt||[]).forEach((t=>{i++;let r=t.itms?.[0]?.itm_det||{},o=(r.iamt||0)+(r.camt||0)+(r.samt||0),l=t.val||0;e.push({FP:a,SL:i,Typ:t.ntty||"",Inv_Typ:t.inv_typ||"",POS:t.pos||"",RcV:t.rchrg||"",GSTIN_of_supplier:d,CN_number:t.nt_num||"",CN_Date:t.nt_dt||"",Taxable:indianFormat(r.txval)||0,IGST:indianFormat(r.iamt)||0,CGST:indianFormat(r.camt)||0,SGST:indianFormat(r.samt)||0,CESS:indianFormat(r.csamt)||0,GST:indianFormat(o.toFixed(2)),TOTAL:indianFormat(l.toFixed(2)),Rate:r.rt||""}),n.Taxable+=r.txval||0,n.IGST+=r.iamt||0,n.CGST+=r.camt||0,n.SGST+=r.samt||0,n.CESS+=r.csamt||0,n.GST+=o,n.TOTAL+=l}))})),e.push({FP:"",SL:"",Typ:"",Inv_Typ:"",POS:"",RcV:"",GSTIN_of_supplier:"Total",CN_number:"",CN_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:""}),document.getElementById("cdn").innerHTML=makeTableHTML(e,!0)}function createB2BATable(t,a){let e=[],i=0;if(!t.b2ba)return void(document.getElementById("b2ba").innerHTML="<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR B2BA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.b2ba.forEach((t=>{let d=t.ctin||"Unknown Trader";(t.inv||[]).forEach((t=>{i++;let r=t.itms?.[0]?.itm_det||{},o=(r.iamt||0)+(r.camt||0)+(r.samt||0),l=t.val||0;e.push({FP:a,SL:i,Inv_Typ:t.inv_typ||"",RcV:t.rchrg||"",POS:t.pos||"",GSTIN_of_supplier:d,Invoice_number:t.inum||"",Invoice_Date:t.idt||"",Taxable:indianFormat(r.txval)||0,IGST:indianFormat(r.iamt)||0,CGST:indianFormat(r.camt)||0,SGST:indianFormat(r.samt)||0,CESS:indianFormat(r.csamt)||0,GST:indianFormat(o.toFixed(2)),TOTAL:indianFormat(l.toFixed(2)),Rate:r.rt||"",OLD_Inv_num:t.oinum||"",OLD_Inv_dt:t.oidt||""}),n.Taxable+=r.txval||0,n.IGST+=r.iamt||0,n.CGST+=r.camt||0,n.SGST+=r.samt||0,n.CESS+=r.csamt||0,n.GST+=o,n.TOTAL+=l}))})),e.push({FP:"",SL:"",Inv_Typ:"",RcV:"",POS:"",GSTIN_of_supplier:"Total",Invoice_number:"",Invoice_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",OLD_Inv_num:"",OLD_Inv_dt:""}),document.getElementById("b2ba").innerHTML=makeTableHTML(e,!0)}function createCDNATable(t,a){let e=[],i=0;if(!t.cdnra)return void(document.getElementById("cdna").innerHTML="<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR CDNA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.cdnra.forEach((t=>{let d=t.ctin||"Unknown Trader";(t.nt||[]).forEach((t=>{i++;let r=t.itms?.[0]?.itm_det||{},o=(r.iamt||0)+(r.camt||0)+(r.samt||0),l=t.val||0;e.push({FP:a,SL:i,Typ:t.ntty||"",Inv_Typ:t.inv_typ||"",POS:t.pos||"",RcV:t.rchrg||"",GSTIN_of_supplier:d,CN_number:t.nt_num||"",CN_Date:t.nt_dt||"",Taxable:indianFormat(r.txval)||0,IGST:indianFormat(r.iamt)||0,CGST:indianFormat(r.camt)||0,SGST:indianFormat(r.samt)||0,CESS:indianFormat(r.csamt)||0,GST:indianFormat(o.toFixed(2)),TOTAL:indianFormat(l.toFixed(2)),Rate:r.rt||"",OLD_Inv_num:t.ont_num||"",OLD_Inv_dt:t.ont_dt||""}),n.Taxable+=r.txval||0,n.IGST+=r.iamt||0,n.CGST+=r.camt||0,n.SGST+=r.samt||0,n.CESS+=r.csamt||0,n.GST+=o,n.TOTAL+=l}))})),e.push({FP:"",SL:"",Typ:"",Inv_Typ:"",POS:"",RcV:"",GSTIN_of_supplier:"Total",CN_number:"",CN_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",OLD_Inv_num:"",OLD_Inv_dt:""}),document.getElementById("cdna").innerHTML=makeTableHTML(e,!0)}function createEXPOTable(t,a){let e=[],i=0;if(!t.exp)return void(document.getElementById("expo").innerHTML="<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR EXPORT</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.exp.forEach((t=>{(t.inv||[]).forEach((t=>{i++;let d=t.itms?.[0]?.itm_det||{},r=(d.iamt||0)+(d.camt||0)+(d.samt||0),o=t.val||0;e.push({FP:a,SL:i,Inv_Typ:"exp",INV_number:t.inum||"",INV_Date:t.idt||"",Taxable:indianFormat(d.txval)||0,IGST:indianFormat(d.iamt)||0,CGST:indianFormat(d.camt)||0,SGST:indianFormat(d.samt)||0,CESS:indianFormat(d.csamt)||0,GST:indianFormat(r.toFixed(2)),TOTAL:indianFormat(o.toFixed(2)),Rate:d.rt||""}),n.Taxable+=d.txval||0,n.IGST+=d.iamt||0,n.CGST+=d.camt||0,n.SGST+=d.samt||0,n.CESS+=d.csamt||0,n.GST+=r,n.TOTAL+=o}))})),e.push({FP:"",SL:"",Inv_Typ:"",INV_number:"Total",INV_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:""}),document.getElementById("expo").innerHTML=makeTableHTML(e,!0)}function createHSNTable(t,a){let e=[];if(!t.hsn)return void(document.getElementById("hsn").innerHTML="<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR HSN WISE DETAILS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let i={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};if(t.hsn.data)var n=t.hsn.data;else{n=t.hsn.hsn_b2b;var d=t.hsn.hsn_b2c}n.forEach((t=>{let a=t||{},n=(a.iamt||0)+(a.camt||0)+(a.samt||0),d=t.txval+n+(a.csamt||0);e.push({IN:"B2B",hsn_sc:a.hsn_sc||"",Taxable:indianFormat(a.txval)||0,IGST:indianFormat(a.iamt)||0,CGST:indianFormat(a.camt)||0,SGST:indianFormat(a.samt)||0,CESS:indianFormat(a.csamt)||0,GST:indianFormat(n.toFixed(2)),TOTAL:indianFormat(d.toFixed(2)),Rate:a.rt||""}),i.Taxable+=a.txval||0,i.IGST+=a.iamt||0,i.CGST+=a.camt||0,i.SGST+=a.samt||0,i.CESS+=a.csamt||0,i.GST+=n,i.TOTAL+=d})),d&&d.forEach((t=>{let a=t||{},n=(a.iamt||0)+(a.camt||0)+(a.samt||0),d=t.txval+n+(a.csamt||0);e.push({IN:"B2C",hsn_sc:a.hsn_sc||"",Taxable:indianFormat(a.txval)||0,IGST:indianFormat(a.iamt)||0,CGST:indianFormat(a.camt)||0,SGST:indianFormat(a.samt)||0,CESS:indianFormat(a.csamt)||0,GST:indianFormat(n.toFixed(2)),TOTAL:indianFormat(d.toFixed(2)),Rate:a.rt||""}),i.Taxable+=a.txval||0,i.IGST+=a.iamt||0,i.CGST+=a.camt||0,i.SGST+=a.samt||0,i.CESS+=a.csamt||0,i.GST+=n,i.TOTAL+=d})),e.push({IN:"",hsn_sc:"",Taxable:indianFormat(i.Taxable.toFixed(2)),IGST:indianFormat(i.IGST.toFixed(2)),CGST:indianFormat(i.CGST.toFixed(2)),SGST:indianFormat(i.SGST.toFixed(2)),CESS:indianFormat(i.CESS.toFixed(2)),GST:indianFormat(i.GST.toFixed(2)),TOTAL:indianFormat(i.TOTAL.toFixed(2)),Rate:""}),document.getElementById("hsn").innerHTML=makeTableHTML(e,!0)}function makeTableHTML(t){if(!t.length)return"<p>No data found.</p>";let a=Object.keys(t[0]),e="<table class='result-tab'><thead><tr>";return a.forEach((t=>e+=`<th>${t}</th>`)),e+="</tr></thead><tbody>",t.forEach((t=>{e+="<tr>",a.forEach((a=>e+=`<td>${t[a]}</td>`)),e+="</tr>"})),e+="</tbody></table>",e}function gstr2a(t,a){const e=document.getElementById("result");e.innerHTML=`\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n            <div class="tab" data-target="tds">TDS</div>\n            <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n             <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR2A: ${formatMonthYear(t.fp)} | Dt: ${(new Date).toLocaleDateString("en-GB")}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="cdn" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n        <div id="tds" class="tab-content"></div>\n    `,maximizerfn(),e.querySelectorAll(".tab").forEach((t=>{t.addEventListener("click",(()=>{e.querySelectorAll(".tab").forEach((t=>t.classList.remove("active"))),e.querySelectorAll(".tab-content").forEach((t=>t.classList.remove("active"))),t.classList.add("active"),document.getElementById(t.dataset.target).classList.add("active")}))})),document.getElementById("exportBtn").addEventListener("click",(()=>{const t=XLSX.utils.book_new(),e=t=>(t?.innerText??t?.textContent??"").trim();document.querySelectorAll(".tab-content table").forEach((a=>{const i=[...a.rows],n=Math.max(...i.map((t=>t.cells.length))),d=Array(n).fill(!1);for(let t=1;t<i.length;t++)for(let a=0;a<n;a++){const n=e(i[t].cells[a]);("-"===n||/^\d{2}-\d{2}-\d{4}$/.test(n))&&(d[a]=!0)}const r=i.map(((t,a)=>[...t.cells].map(((t,i)=>0===a||d[i]?e(t):(t=>{const a=t.trim();if(!a||"-"===a)return t;const e=a.replace(/,/g,"");return/^-?\d+(\.\d+)?$/.test(e)?+e:t})(e(t)))))),o=XLSX.utils.aoa_to_sheet(r),l=XLSX.utils.decode_range(o["!ref"]);d.forEach(((t,a)=>{if(t)for(let t=1;t<=l.e.r;t++){const e=o[XLSX.utils.encode_cell({r:t,c:a})];e&&(e.t="s",delete e.z,delete e.w)}})),XLSX.utils.book_append_sheet(t,o,(a.closest(".tab-content").id||"SHEET").toUpperCase().slice(0,31))})),XLSX.writeFile(t,`${a}_GST2A_${session.gstin}.xlsx`)})),createB2BTable2a(t,a),createCDNTable2a(t,a),createTDSTable2a(t,a);document.getElementById("tableSearch").addEventListener("input",(function(){const t=this.value.toLowerCase();document.querySelectorAll("#result .result-tab").forEach((a=>{a.querySelectorAll("tbody tr").forEach((a=>{const e=a.innerText.toLowerCase();a.style.display=e.includes(t)?"":"none"}))}))}))}function createB2BTable2a(t,a){let e=[],i=0;if(!t.b2b||!Array.isArray(t.b2b))return void(document.getElementById("b2b").innerHTML="<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.b2b.forEach((t=>{let d=t.ctin||"Unknown Trader",r=t.flprdr1||"",o=(t.fldtr1,t.cfs||"");t.cfs3b;(t.inv||[]).forEach((t=>{i++;let l=0,S=0,s=0,T=0,m=0;(t.itms||[]).forEach((t=>{l+=t.itm_det?.txval||0,S+=t.itm_det?.iamt||0,s+=t.itm_det?.camt||0,T+=t.itm_det?.samt||0,m+=t.itm_det?.csamt||0}));let c=S+s+T,b=l?+(c/l*100).toFixed(2):0,G=l+c;e.push({FP:a,SL:i,POS:t.pos||"",GSTIN_of_vendor:d,Bill_number:t.inum||"",Bill_Date:t.idt||"",Taxable:indianFormat(l),IGST:indianFormat(S),CGST:indianFormat(s),SGST:indianFormat(T),CESS:indianFormat(m),GST:indianFormat(c.toFixed(2)),TOTAL:indianFormat(G.toFixed(2)),Rate:b,RecV:t.rchrg||"",FillMonth:r,cfs:o}),n.Taxable+=l,n.IGST+=S,n.CGST+=s,n.SGST+=T,n.CESS+=m,n.GST+=c,n.TOTAL+=G}))})),e.push({FP:"",SL:"",POS:"",GSTIN_of_vendor:"Total",Bill_number:"",Bill_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",FillMonth:"",cfs:""}),document.getElementById("b2b").innerHTML=makeTableHTML(e,!0)}function createCDNTable2a(t,a){let e=[],i=0;if(!t.cdn||!Array.isArray(t.cdn))return void(document.getElementById("cdn").innerHTML="<table class='result-tab'><thead><tr><td>GSTR CDN</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t.cdn.forEach((t=>{let d=t.ctin||"Unknown Trader",r=t.flprdr1||"",o=(t.fldtr1,t.cfs||""),l=t.cfs3b||"";(t.nt||[]).forEach((t=>{i++;let S=0,s=0,T=0,m=0,c=0;(t.itms||[]).forEach((t=>{S+=t.itm_det?.txval||0,s+=t.itm_det?.iamt||0,T+=t.itm_det?.camt||0,m+=t.itm_det?.samt||0,c+=t.itm_det?.csamt||0}));let b=s+T+m,G=S?+(b/S*100).toFixed(2):0,F=t.val||0;e.push({FP:a,SL:i,POS:t.pos||"",Typ:t.ntty||"",GSTIN_of_vendor:d,CN_number:t.nt_num||"",CN_Date:t.nt_dt||"",Taxable:indianFormat(S),IGST:indianFormat(s),CGST:indianFormat(T),SGST:indianFormat(m),CESS:indianFormat(c),GST:indianFormat(b.toFixed(2)),TOTAL:indianFormat(F.toFixed(2)),Rate:G,RecV:t.rchrg||"",FillMonth:r,cfs:o,cfs3b:l}),n.Taxable+=S,n.IGST+=s,n.CGST+=T,n.SGST+=m,n.CESS+=c,n.GST+=b,n.TOTAL+=F}))})),e.push({FP:"",SL:"",POS:"",Typ:"",GSTIN_of_vendor:"Total",CN_number:"",CN_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",FillMonth:"",cfs:"",cfs3b:""}),document.getElementById("cdn").innerHTML=makeTableHTML(e,!0)}function createTDSTable2a(t,a){let e=[],i=0;if(!t.tds||!Array.isArray(t.tds))return void(document.getElementById("tds").innerHTML="<table class='result-tab'><thead><tr><td>GSTR TDS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");let n=0,d=0,r=0,o=0,l=0,S=0;t.tds.forEach((t=>{i++;let a=+t.amt_ded||0,s=+t.iamt||0,T=+t.camt||0,m=+t.samt||0,c=s+T+m,b=a?+(c/a*100).toFixed(2):0,G=a+c;n+=a,d+=s,r+=T,o+=m,l+=c,S+=G,e.push({FP:t.month||"",SL:i,GSTIN_of_vendor:t.gstin_deductor||"",Vendor_Name:t.deductor_name||"Unknown deductor",Taxable:indianFormat(a),IGST:indianFormat(s),CGST:indianFormat(T),SGST:indianFormat(m),GST:indianFormat(c),TOTAL:indianFormat(G),Rate:b})})),e.push({FP:"",SL:"",GSTIN_of_vendor:"",Vendor_Name:"TOTAL",Taxable:indianFormat(n.toFixed(2)),IGST:indianFormat(d.toFixed(2)),CGST:indianFormat(r.toFixed(2)),SGST:indianFormat(o.toFixed(2)),GST:indianFormat(l.toFixed(2)),TOTAL:indianFormat(S.toFixed(2)),Rate:""}),document.getElementById("tds").innerHTML=makeTableHTML(e)}function gstr2b(t,a){const e=document.getElementById("result");e.innerHTML=`\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="ecom">ECOM</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n        <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n             <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR2B: ${formatMonthYear(t.data.rtnprd)} | Dt: ${t.data.gendt}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="cdn" class="tab-content"></div>\n        <div id="ecom" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n            `,maximizerfn(),e.querySelectorAll(".tab").forEach((t=>{t.addEventListener("click",(()=>{e.querySelectorAll(".tab").forEach((t=>t.classList.remove("active"))),e.querySelectorAll(".tab-content").forEach((t=>t.classList.remove("active"))),t.classList.add("active"),document.getElementById(t.dataset.target).classList.add("active")}))})),document.getElementById("exportBtn").addEventListener("click",(()=>{const t=XLSX.utils.book_new(),e=t=>(t?.innerText??t?.textContent??"").trim();document.querySelectorAll(".tab-content table").forEach((a=>{const i=[...a.rows],n=Math.max(...i.map((t=>t.cells.length))),d=Array(n).fill(!1);for(let t=1;t<i.length;t++)for(let a=0;a<n;a++){const n=e(i[t].cells[a]);("-"===n||/^\d{2}-\d{2}-\d{4}$/.test(n))&&(d[a]=!0)}const r=i.map(((t,a)=>[...t.cells].map(((t,i)=>0===a||d[i]?e(t):(t=>{const a=t.trim();if(!a||"-"===a)return t;const e=a.replace(/,/g,"");return/^-?\d+(\.\d+)?$/.test(e)?+e:t})(e(t)))))),o=XLSX.utils.aoa_to_sheet(r),l=XLSX.utils.decode_range(o["!ref"]);d.forEach(((t,a)=>{if(t)for(let t=1;t<=l.e.r;t++){const e=o[XLSX.utils.encode_cell({r:t,c:a})];e&&(e.t="s",delete e.z,delete e.w)}})),XLSX.utils.book_append_sheet(t,o,(a.closest(".tab-content").id||"SHEET").toUpperCase().slice(0,31))})),XLSX.writeFile(t,`${a}_GSTR2B_${session.gstin}.xlsx`)})),createB2BTable2b(t,a),createCDNTable2b(t,a),createECOMTable2b(t,a),createB2BATable2b(t,a);document.getElementById("tableSearch").addEventListener("input",(function(){const t=this.value.toLowerCase();document.querySelectorAll("#result .result-tab").forEach((a=>{a.querySelectorAll("tbody tr").forEach((a=>{const e=a.innerText.toLowerCase();a.style.display=e.includes(t)?"":"none"}))}))}))}function createB2BTable2b(t,a){let e=[],i=0,n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t?.data?.docdata?.b2b&&Array.isArray(t.data.docdata.b2b)?(t.data.docdata.b2b.forEach((t=>{let d=t.trdnm||"N/A",r=t.ctin||"N/A",o=t.supprd||"";t.supfildt;(t.inv||[]).forEach((t=>{i++;let l=t.inum||"N/A",S=t.dt||"N/A",s=+(t.val||0),T=t.pos||"",m=t.rev||"",c=t.itcavl||"",b=(t.typ,t.irn,t.irngendate,0),G=0,F=0,x=0,u=0;Array.isArray(t.items)&&t.items.length>0?t.items.forEach((t=>{b+=+t.txval||0,G+=+t.igst||0,F+=+t.cgst||0,x+=+t.sgst||0,u+=+t.cess||0})):(b=+(t.txval||0),G=+(t.igst||0),F=+(t.cgst||0),x=+(t.sgst||0),u=+(t.cess||0));let _=G+F+x,C=b?+(_/b*100).toFixed(2):0;n.Taxable+=b,n.IGST+=G,n.CGST+=F,n.SGST+=x,n.CESS+=u,n.GST+=_,n.TOTAL+=s,e.push({FP:a,SL:i,GSTIN_of_vendor:r,Vendor_Name:d,Bill_number:l,Bill_Date:S,Taxable:indianFormat(b.toFixed(2)),IGST:indianFormat(G.toFixed(2)),CGST:indianFormat(F.toFixed(2)),SGST:indianFormat(x.toFixed(2)),CESS:indianFormat(u.toFixed(2)),GST:indianFormat(_.toFixed(2)),TOTAL:indianFormat(s.toFixed(2)),Rate:C.toFixed(2),RecV:m,POS:T,FillMonth:o,itcavi:c})}))})),e.push({FP:"",SL:"",GSTIN_of_vendor:"",Vendor_Name:"TOTAL",Bill_number:"",Bill_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",POS:"",FillMonth:"",itcavi:""}),document.getElementById("b2b").innerHTML=makeTableHTML(e)):document.getElementById("b2b").innerHTML="<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"}function createCDNTable2b(t,a){let e=[],i=0,n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t?.data?.docdata?.cdnr&&Array.isArray(t.data.docdata.cdnr)?(t.data.docdata.cdnr.forEach((t=>{let d=t.trdnm||"N/A",r=t.ctin||"N/A",o=t.supprd||"";t.supfildt,t.suptyp;(t.nt||[]).forEach((t=>{i++;let l=0,S=0,s=0,T=0,m=0;t.items&&t.items.length>0?t.items.forEach((t=>{l+=+t.txval||0,S+=+t.igst||0,s+=+t.cgst||0,T+=+t.sgst||0,m+=+t.cess||0})):(l=+(t.txval||0),S=+(t.igst||0),s=+(t.cgst||0),T=+(t.sgst||0),m=+(t.cess||0));let c=S+s+T,b=l?+(c/l*100).toFixed(2):0;n.Taxable+=l,n.IGST+=S,n.CGST+=s,n.SGST+=T,n.CESS+=m,n.GST+=c,n.TOTAL+=+(t.val||0);let G=t.itcavl||"",F="Y"===G?"Y":"X";e.push({FP:a,SL:i,POS:t.pos||"",Typ:t.typ||"",GSTIN_of_vendor:r,Vendor_Name:d,CN_number:t.ntnum||"",CN_Date:t.dt||"",Taxable:indianFormat(l.toFixed(2)),IGST:indianFormat(S.toFixed(2)),CGST:indianFormat(s.toFixed(2)),SGST:indianFormat(T.toFixed(2)),CESS:indianFormat(m.toFixed(2)),GST:indianFormat(c.toFixed(2)),TOTAL:indianFormat((+(t.val||0)).toFixed(2)),Rate:b.toFixed(2),RecV:t.rev||"",FillMonth:o,itcavi:G,itc:F})}))})),e.push({FP:"",SL:"",POS:"",Typ:"",GSTIN_of_vendor:"",Vendor_Name:"TOTAL",CN_number:"",CN_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",FillMonth:"",itcavi:"",itc:""}),document.getElementById("cdn").innerHTML=makeTableHTML(e)):document.getElementById("cdn").innerHTML="<table class='result-tab'><thead><tr><td>GSTR CDN</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"}function createECOMTable2b(t,a){let e=[],i=0,n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0};t?.data?.docdata?.ecom&&Array.isArray(t.data.docdata.ecom)?(t.data.docdata.ecom.forEach((t=>{let d=t.trdnm||"N/A",r=t.ctin||"N/A",o=t.supprd||"";t.supfildt;(t.inv||[]).forEach((t=>{i++;let l=0,S=0,s=0,T=0,m=0;t.items&&t.items.length>0?t.items.forEach((t=>{l+=+t.txval||0,S+=+t.igst||0,s+=+t.cgst||0,T+=+t.sgst||0,m+=+t.cess||0})):(l=+(t.txval||0),S=+(t.igst||0),s=+(t.cgst||0),T=+(t.sgst||0),m=+(t.cess||0));let c=S+s+T,b=l?+(c/l*100).toFixed(2):0;n.Taxable+=l,n.IGST+=S,n.CGST+=s,n.SGST+=T,n.CESS+=m,n.GST+=c,n.TOTAL+=+(t.val||0);let G=t.itcavl||"",F="Y"===G?"Y":"X";e.push({FP:a,SL:i,GSTIN_of_vendor:r,Vendor_Name:d,Bill_number:t.inum||"",Bill_Date:t.dt||"",Taxable:indianFormat(l.toFixed(2)),IGST:indianFormat(S.toFixed(2)),CGST:indianFormat(s.toFixed(2)),SGST:indianFormat(T.toFixed(2)),CESS:indianFormat(m.toFixed(2)),GST:indianFormat(c.toFixed(2)),TOTAL:indianFormat((+(t.val||0)).toFixed(2)),Rate:b.toFixed(2),RecV:t.rev||"",POS:t.pos||"",FillMonth:o,itcavi:G,itc:F})}))})),e.push({FP:"",SL:"",GSTIN_of_vendor:"",Vendor_Name:"TOTAL",Bill_number:"",Bill_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",POS:"",FillMonth:"",itcavi:"",itc:""}),document.getElementById("ecom").innerHTML=makeTableHTML(e)):document.getElementById("ecom").innerHTML="<table class='result-tab'><thead><tr><td>GSTR ECOM</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"}function createB2BATable2b(t,a){let e=[],i=0,n={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0,TOTAL:0,C_Taxable:0,C_IGST:0,C_CGST:0,C_SGST:0,C_CESS:0,C_GST:0,C_TOTAL:0};t?.data?.docdata?.b2ba&&Array.isArray(t.data.docdata.b2ba)?(t.data.docdata.b2ba.forEach((t=>{let d=t.trdnm||"N/A",r=t.ctin||"N/A",o=t.supprd||"";(t.inv||[]).forEach((t=>{i++;let l=+(t.txval||0),S=+(t.igst||0),s=+(t.cgst||0),T=+(t.sgst||0),m=+(t.cess||0),c=S+s+T,b=l?+(c/l*100).toFixed(2):0,G=l,F=S,x=s,u=T,_=m,C=c,h=+(t.val||0),p=b;t.items&&t.items.length>0&&(l=S=s=T=m=0,t.items.forEach((t=>{l+=+(t.txval||0),S+=+(t.igst||0),s+=+(t.cgst||0),T+=+(t.sgst||0),m+=+(t.cess||0)})),c=S+s+T,b=l?+(c/l*100).toFixed(2):0),n.Taxable+=l,n.IGST+=S,n.CGST+=s,n.SGST+=T,n.CESS+=m,n.GST+=c,n.TOTAL+=+(t.val||0),n.C_Taxable+=G,n.C_IGST+=F,n.C_CGST+=x,n.C_SGST+=u,n.C_CESS+=_,n.C_GST+=C,n.C_TOTAL+=h;t.itcavl;e.push({FP:a,SL:i,POS:t.pos||"",GSTIN_of_vendor:r,Vendor_Name:d,Bill_number:t.inum||"",Bill_Date:t.dt||"",Taxable:indianFormat(l.toFixed(2)),IGST:indianFormat(S.toFixed(2)),CGST:indianFormat(s.toFixed(2)),SGST:indianFormat(T.toFixed(2)),CESS:indianFormat(m.toFixed(2)),GST:indianFormat(c.toFixed(2)),TOTAL:indianFormat((+(t.val||0)).toFixed(2)),Rate:b.toFixed(2),RecV:t.rev||"",OBill_number:t.oinum||"",OBill_Date:t.oidt||"",C_Taxable:indianFormat(G.toFixed(2)),C_IGST:indianFormat(F.toFixed(2)),C_CGST:indianFormat(x.toFixed(2)),C_SGST:indianFormat(u.toFixed(2)),C_CESS:indianFormat(_.toFixed(2)),C_GST:indianFormat(C.toFixed(2)),C_TOTAL:indianFormat(h.toFixed(2)),C_Rate:indianFormat(p.toFixed(2)),FillMonth:o})}))})),e.push({FP:"",SL:"",POS:"",GSTIN_of_vendor:"",Vendor_Name:"TOTAL",Bill_number:"",Bill_Date:"",Taxable:indianFormat(n.Taxable.toFixed(2)),IGST:indianFormat(n.IGST.toFixed(2)),CGST:indianFormat(n.CGST.toFixed(2)),SGST:indianFormat(n.SGST.toFixed(2)),CESS:indianFormat(n.CESS.toFixed(2)),GST:indianFormat(n.GST.toFixed(2)),TOTAL:indianFormat(n.TOTAL.toFixed(2)),Rate:"",RecV:"",OBill_number:"",OBill_Date:"",C_Taxable:indianFormat(n.C_Taxable.toFixed(2)),C_IGST:indianFormat(n.C_IGST.toFixed(2)),C_CGST:indianFormat(n.C_CGST.toFixed(2)),C_SGST:indianFormat(n.C_SGST.toFixed(2)),C_CESS:indianFormat(n.C_CESS.toFixed(2)),C_GST:indianFormat(n.C_GST.toFixed(2)),C_TOTAL:indianFormat(n.C_TOTAL.toFixed(2)),C_Rate:"",FillMonth:""}),document.getElementById("b2ba").innerHTML=makeTableHTML(e)):document.getElementById("b2ba").innerHTML="<table class='result-tab'><thead><tr><td>GSTR B2BA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"}function gstr3b(t,a){const e=document.getElementById("result");e.innerHTML=`\n        <div class="tabs">\n            <div class="tab active" data-target="Liability">Liability</div>\n            <div class="tab" data-target="Credit">Credit</div>\n            <div class="tab" data-target="Computation">Computation</div>\n         <div class="tab" data-target="inwardsupply">Inward Supplies</div>\n            <div class="tab" data-target="Payments">Payments</div>\n             <span style="font-size:15px; color: #007bff; margin-left:15%; white-space:nowrap;">GSTR3B:${formatMonthYear(t.ret_period)}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:160px;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="Liability" class="tab-content active"></div>\n        <div id="Credit" class="tab-content"></div>\n        <div id="Computation" class="tab-content"></div>\n        <div id="inwardsupply" class="tab-content"></div>\n        <div id="Payments" class="tab-content"></div>\n            `,maximizerfn(),e.querySelectorAll(".tab").forEach((t=>{t.addEventListener("click",(()=>{e.querySelectorAll(".tab").forEach((t=>t.classList.remove("active"))),e.querySelectorAll(".tab-content").forEach((t=>t.classList.remove("active"))),t.classList.add("active"),document.getElementById(t.dataset.target).classList.add("active")}))})),document.getElementById("exportBtn").addEventListener("click",(()=>{const t=XLSX.utils.book_new();document.querySelectorAll(".tab-content").forEach((a=>{const e=a.querySelector("table");if(e){const i=XLSX.utils.table_to_sheet(e);XLSX.utils.book_append_sheet(t,i,a.id.toUpperCase())}})),XLSX.writeFile(t,`${a}_GSTR3B_${session.gstin}.xlsx`)})),buildGSTR3B(t)}function buildGSTR3B(t,a={}){const e=t=>Number(t??0),i=t=>String(t??"").replace(/'/g,"''").trim(),n=a.period??t?.ret_period??"",d=a.MNN??"",r=t?.sup_details?.osup_det??{},o=t?.sup_details?.osup_zero??{},l=t?.sup_details?.osup_nil_exmp??{},S=t?.sup_details?.isup_rev??{},s=t?.sup_details?.osup_nongst??{},T=Array.isArray(t?.itc_elg?.itc_avl)?t.itc_elg.itc_avl:[],m=Array.isArray(t?.itc_elg?.itc_rev)?t.itc_elg.itc_rev:[],c=Array.isArray(t?.itc_elg?.itc_inelg)?t.itc_elg.itc_inelg:[],b=t?.itc_elg?.itc_net??{},G=t?.taxpayble?.returnsDbCdredList?.tax_paid?.pd_by_itc?.[0]??{},F=t?.taxpayble?.returnsDbCdredList?.tax_paid?.pd_by_cash??[],x=t?.taxpayble?.bal?.cash_bal??{},u=t?.inward_sup?.isup_details??{},_=e(r.iamt)+e(o.iamt)+e(l.iamt)+e(s.iamt),C=e(r.camt)+e(o.camt)+e(l.camt)+e(s.camt),h=e(r.samt)+e(o.samt)+e(l.samt)+e(s.samt),p=e(r.csamt)+e(o.csamt)+e(l.csamt)+e(s.csamt),g=_+C+h,L={IMPG:"ITC_Import_Good",IMPS:"ITC_Import_Service",ISRC:"ITC_RCM_Charge",ISD:"ITC_Inword_Supply",OTH:"ITC_All_Others"},v=[];v.push({FP:n,MNN:d,SL:1,Nature:"Taxable",in_details:"-",Taxable:e(r.txval),IGST:e(r.iamt),CGST:e(r.camt),SGST:e(r.samt),CESS:e(r.csamt),GST:e(r.iamt)+e(r.samt)+e(r.camt),TOTAL:e(r.iamt)+e(r.samt)+e(r.camt)+e(r.txval)}),v.push({FP:n,MNN:d,SL:2,Nature:"Zero_Rate/SEZ",in_details:"-",Taxable:e(o.txval),IGST:e(o.iamt),CGST:e(o.camt),SGST:e(o.samt),CESS:e(o.csamt),GST:e(o.iamt)+e(o.samt)+e(o.camt),TOTAL:e(o.iamt)+e(o.samt)+e(o.camt)+e(o.txval)}),v.push({FP:n,MNN:d,SL:3,Nature:"Nil_Rate",in_details:"-",Taxable:e(l.txval),IGST:e(l.iamt),CGST:e(l.camt),SGST:e(l.samt),CESS:e(l.csamt),GST:e(l.iamt)+e(l.samt)+e(l.camt),TOTAL:e(l.iamt)+e(l.samt)+e(l.camt)+e(l.txval)}),v.push({FP:n,MNN:d,SL:4,Nature:"RCM_Charges",in_details:"-",Taxable:e(S.txval),IGST:e(S.iamt),CGST:e(S.camt),SGST:e(S.samt),CESS:e(S.csamt),GST:e(S.iamt)+e(S.samt)+e(S.camt),TOTAL:e(S.iamt)+e(S.samt)+e(S.camt)+e(S.txval)}),v.push({FP:n,MNN:d,SL:5,Nature:"NA_Rate",in_details:"-",Taxable:e(s.txval),IGST:e(s.iamt),CGST:e(s.camt),SGST:e(s.samt),CESS:e(s.csamt),GST:e(s.iamt)+e(s.samt)+e(s.camt),TOTAL:e(s.iamt)+e(s.samt)+e(s.camt)+e(s.txval)});let y=0;for(const t of T){y+=1;const a=t?.ty??"";v.push({FP:n,MNN:d,SL:5+y,Nature:L[a]??a,in_details:a,Taxable:0,IGST:e(t?.iamt),CGST:e(t?.camt),SGST:e(t?.samt),CESS:e(t?.csamt),GST:e(t?.iamt)+e(t?.samt)+e(t?.camt),TOTAL:0})}const E=m[0]??{};v.push({FP:n,MNN:d,SL:11,Nature:"ITC_Reverse_inRull",in_details:E.ty??"-",Taxable:0,IGST:e(E.iamt),CGST:e(E.camt),SGST:e(E.samt),CESS:e(E.csamt),GST:e(E.iamt)+e(E.samt)+e(E.camt),TOTAL:0});const I=m[1]??{};v.push({FP:n,MNN:d,SL:12,Nature:"ITC_Reverse_Others",in_details:I.ty??"-",Taxable:0,IGST:e(I.iamt),CGST:e(I.camt),SGST:e(I.samt),CESS:e(I.csamt),GST:e(I.iamt)+e(I.samt)+e(I.camt),TOTAL:0});const f=c[0]??{};v.push({FP:n,MNN:d,SL:13,Nature:"Reclaim_Others",in_details:f.ty??"-",Taxable:0,IGST:e(f.iamt),CGST:e(f.camt),SGST:e(f.samt),CESS:e(f.csamt),GST:e(f.iamt)+e(f.samt)+e(f.camt),TOTAL:0});const A=c[1]??{};v.push({FP:n,MNN:d,SL:14,Nature:"InEligible_PoS",in_details:A.ty??"-",Taxable:0,IGST:e(A.iamt),CGST:e(A.camt),SGST:e(A.samt),CESS:e(A.csamt),GST:e(A.iamt)+e(A.samt)+e(A.camt),TOTAL:0}),v.push({FP:n,MNN:d,SL:15,Nature:"GST Output",in_details:"-",Taxable:0,IGST:_,CGST:C,SGST:h,CESS:p,GST:g,TOTAL:0}),v.push({FP:n,MNN:d,SL:16,Nature:"GST Input",in_details:"-",Taxable:0,IGST:e(b.iamt),CGST:e(b.camt),SGST:e(b.samt),CESS:e(b.csamt),GST:e(b.iamt)+e(b.camt)+e(b.samt),TOTAL:0}),v.push({FP:n,MNN:d,SL:17,Nature:"Comp_ITC_IGST",in_details:"-",Taxable:0,IGST:e(G.igst_igst_amt),CGST:e(G.igst_cgst_amt),SGST:e(G.igst_sgst_amt),CESS:0,GST:e(G.igst_igst_amt)+e(G.igst_cgst_amt)+e(G.igst_sgst_amt),TOTAL:0}),v.push({FP:n,MNN:d,SL:18,Nature:"Comp_ITC_CGST",in_details:"-",Taxable:0,IGST:e(G.cgst_igst_amt),CGST:e(G.cgst_cgst_amt),SGST:0,CESS:0,GST:e(G.cgst_igst_amt)+e(G.cgst_cgst_amt),TOTAL:0}),v.push({FP:n,MNN:d,SL:19,Nature:"Comp_ITC_SGST",in_details:"-",Taxable:0,IGST:e(G.sgst_igst_amt),CGST:0,SGST:e(G.sgst_sgst_amt),CESS:0,GST:e(G.sgst_igst_amt)+e(G.sgst_sgst_amt),TOTAL:0}),v.push({FP:n,MNN:d,SL:20,Nature:"Comp_ITC_CESS",in_details:"-",Taxable:0,IGST:0,CGST:0,SGST:0,CESS:e(G.cess_cess_amt),GST:e(G.cess_cess_amt),TOTAL:0}),v.push({FP:n,MNN:d,SL:21,Nature:"GST Output RCM",in_details:"-",Taxable:0,IGST:e(S.iamt),CGST:e(S.camt),SGST:e(S.samt),CESS:e(S.csamt),GST:e(S.iamt)+e(S.samt)+e(S.camt),TOTAL:0}),v.push({FP:n,MNN:d,SL:22,Nature:"Comp_Cash_Bal",in_details:"-",Taxable:0,IGST:e(x.igst_tot_bal),CGST:e(x.cgst_tot_bal),SGST:e(x.sgst_tot_bal),CESS:e(x.cess_tot_bal),GST:e(x.igst_tot_bal)+e(x.cgst_tot_bal)+e(x.sgst_tot_bal)+e(x.cess_tot_bal),TOTAL:0});const N=F[0]??{},O=F[1]??{};v.push({FP:n,MNN:d,SL:23,Nature:"Paid Cash_Tax",in_details:"-",Taxable:0,IGST:e(N?.igst?.tx),CGST:e(N?.cgst?.tx),SGST:e(N?.sgst?.tx),CESS:e(N?.cess?.tx),GST:e(N?.igst?.tx)+e(N?.cgst?.tx)+e(N?.sgst?.tx),TOTAL:0}),v.push({FP:n,MNN:d,SL:24,Nature:"Paid Cash_RCM",in_details:"-",Taxable:0,IGST:e(O?.igst?.tx),CGST:e(O?.cgst?.tx),SGST:e(O?.sgst?.tx),CESS:e(O?.cess?.tx),GST:e(O?.igst?.tx)+e(O?.cgst?.tx)+e(O?.sgst?.tx),TOTAL:0}),v.push({FP:n,MNN:d,SL:25,Nature:"Paid Cash_Interesst",in_details:"-",Taxable:0,IGST:e(N?.igst?.intr),CGST:e(N?.cgst?.intr),SGST:e(N?.sgst?.intr),CESS:e(N?.cess?.intr),GST:e(N?.igst?.intr)+e(N?.cgst?.intr)+e(N?.sgst?.intr),TOTAL:0}),v.push({FP:n,MNN:d,SL:26,Nature:"Paid Cash_Fees & Penalty",in_details:"-",Taxable:0,IGST:e(N?.igst?.fee),CGST:e(N?.cgst?.fee),SGST:e(N?.sgst?.fee),CESS:e(N?.cess?.fee),GST:e(N?.igst?.fee)+e(N?.cgst?.fee)+e(N?.sgst?.fee),TOTAL:0}),v.push({FP:n,MNN:d,SL:27,Nature:"Total Paid Cash",in_details:"-",Taxable:0,IGST:e(N?.igst?.tx)+e(O?.igst?.tx)+e(N?.igst?.intr)+e(N?.igst?.fee),CGST:e(N?.cgst?.tx)+e(O?.cgst?.tx)+e(N?.cgst?.intr)+e(N?.cgst?.fee),SGST:e(N?.sgst?.tx)+e(O?.sgst?.tx)+e(N?.sgst?.intr)+e(N?.sgst?.fee),CESS:e(N?.cess?.tx),GST:e(N?.igst?.tx)+e(O?.igst?.tx)+e(N?.igst?.intr)+e(N?.igst?.fee)+e(N?.cgst?.tx)+e(O?.cgst?.tx)+e(N?.cgst?.intr)+e(N?.cgst?.fee)+e(N?.sgst?.tx)+e(O?.sgst?.tx)+e(N?.sgst?.intr)+e(N?.sgst?.fee)+e(N?.cess?.tx),TOTAL:0});let B="<table class='result-tab' style='font-size:18px;'><thead><tr><th>FP</th><th>Nature</th><th>Taxable</th><th>IGST</th><th>CGST</th><th>SGST</th><th>CESS</th><th>GST</th></tr></thead><tbody>",M="",P="",R="",D="",H={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0},w={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0},k={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0},X={Taxable:0,IGST:0,CGST:0,SGST:0,CESS:0,GST:0};function $(t){return`<tr style="font-weight:bold">\n        <td></td>\n        <td style="text-align:left">TOTAL</td>\n        <td style="text-align:right">${indianFormat(t.Taxable.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.IGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.CGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.SGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.CESS.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.GST.toFixed(2))}</td>\n    </tr>`}v.forEach(((t,a)=>{let e=indianFormat(Number(t.GST).toFixed(2)),n=`<tr>\n        <td>${i(t.FP)}</td>\n        <td style="text-align:left">${i(t.Nature)}</td>\n        <td style="text-align:right">${indianFormat(Number(t.Taxable).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.IGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.CGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.SGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.CESS).toFixed(2))}</td>\n        <td style="text-align:right">${e}</td>\n    </tr>`;function d(a){a.Taxable+=Number(t.Taxable)||0,a.IGST+=Number(t.IGST)||0,a.CGST+=Number(t.CGST)||0,a.SGST+=Number(t.SGST)||0,a.CESS+=Number(t.CESS)||0,a.GST+=Number(t.GST)||0}var r;a>=0&&a<=4?(M+=n,d(H)):a>=5&&a<=13?(P+=n,a<=9?d(w):a<=11&&((r=w).Taxable-=Number(t.Taxable)||0,r.IGST-=Number(t.IGST)||0,r.CGST-=Number(t.CGST)||0,r.SGST-=Number(t.SGST)||0,r.CESS-=Number(t.CESS)||0,r.GST-=Number(t.GST)||0)):a>=14&&a<=20?(R+=n,d(k)):a>=22&&a<=25&&(D+=n,d(X))}));let V=`<tr><td>From a supplier under composition scheme, Exempt, Nil rated supply</td><td>${indianFormat(Number(u?.[0]?.inter).toFixed(2))}</td><td>${indianFormat(Number(u?.[0]?.intra).toFixed(2))}</td></tr><tr><td>Non GST supply</td><td>${indianFormat(Number(u?.[1]?.inter).toFixed(2))}</td><td>${indianFormat(Number(u?.[0]?.intra).toFixed(2))}</td></tr><tr><td></td><td></td><td></td></tr>`;document.getElementById("Liability").innerHTML=B+M+$(H)+"</tbody></table>",document.getElementById("Credit").innerHTML=B+P+$(w)+"</tbody></table>",document.getElementById("Computation").innerHTML=B+R+"<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>",document.getElementById("Payments").innerHTML=B+D+$(X)+"</tbody></table>",document.getElementById("inwardsupply").innerHTML="<table class='result-tab' style='font-size:18px;'><thead><tr><th>Nature of Supplies </th><th>Inter- State supplies</th><th>Intra- State supplies</th></tr></thead><tbody>"+V+"</tbody></table>"}function gstr9(t){document.getElementById("result").innerHTML='\n        <h4>Please Visit: <a href="https://gst.xlsdeal.com" target="_blank" rel="noopener noreferrer"\n   style="display:inline-block; padding:8px 16px; background:#007bff; color:#fff; border-radius:4px; text-decoration:none;">\n   gst.xlsdeal.com</a></h4>\n        <h3>You can View, Export & Analysis Dynamically and Many more..</h3>\n    '}function gstr9c(t){document.getElementById("result").innerHTML='\n        <h4>Please Visit: <a href="https://gst.xlsdeal.com" target="_blank" rel="noopener noreferrer"\n   style="display:inline-block; padding:8px 16px; background:#007bff; color:#fff; border-radius:4px; text-decoration:none;">\n   gst.xlsdeal.com</a></h4>\n        <h3>You can View, Export & Analysis Dynamically and Many more..</h3>\n    '}function indianFormat(t){return(parseFloat(t)||0).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function maximizerfn() {
+    chrome.windows.getCurrent({}, (function(t) {
+        chrome.windows.update(t.id, {
+            state: "maximized"
+        })
+    }));
+    const t = document.getElementById("returnStatus"),
+        a = document.getElementById("result");
+    document.getElementById("maximizer").style.display = "none", document.getElementById("minmizer").style.display = "block", t.style.display = "none", a.style.height = "75%"
+}
+
+function formatMonthYear(t) {
+    const a = parseInt(t.slice(0, 2), 10) - 1,
+        e = t.slice(2);
+    return new Date(e, a).toLocaleString("en-GB", {
+        month: "long",
+        year: "numeric"
+    })
+}
+
+function gstr1(t, a) {
+    const e = document.getElementById("result");
+    e.innerHTML = `\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="b2cs">B2CS</div>\n        <div class="tab" data-target="b2cl">B2CL</div>\n         <div class="tab" data-target="nil">NIL</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n        <div class="tab" data-target="cdna">CDNA</div>\n        <div class="tab" data-target="expo">EXPO</div>\n         <div class="tab" data-target="hsn">HSN</div>\n        <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n            <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR1: ${formatMonthYear(t.fp)} | Dt: ${t.fil_dt}</span>\n\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        \n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="b2cs" class="tab-content"></div>\n        <div id="b2cl" class="tab-content"></div>\n       <div id="nil" class="tab-content"></div> \n        <div id="cdn" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n        <div id="cdna" class="tab-content"></div>\n        <div id="expo" class="tab-content"></div>\n        <div id="hsn" class="tab-content"></div>\n    `, maximizerfn(), e.querySelectorAll(".tab").forEach((t => {
+        t.addEventListener("click", (() => {
+            e.querySelectorAll(".tab").forEach((t => t.classList.remove("active"))), e.querySelectorAll(".tab-content").forEach((t => t.classList.remove("active"))), t.classList.add("active"), document.getElementById(t.dataset.target).classList.add("active")
+        }))
+    })), document.getElementById("exportBtn").addEventListener("click", (() => {
+        const t = XLSX.utils.book_new(),
+            e = t => (t?.innerText ?? t?.textContent ?? "").trim();
+        document.querySelectorAll(".tab-content table").forEach((a => {
+            const i = [...a.rows],
+                n = Math.max(...i.map((t => t.cells.length))),
+                d = Array(n).fill(!1);
+            for (let t = 1; t < i.length; t++)
+                for (let a = 0; a < n; a++) {
+                    const n = e(i[t].cells[a]);
+                    ("-" === n || /^\d{2}-\d{2}-\d{4}$/.test(n)) && (d[a] = !0)
+                }
+            const r = i.map(((t, a) => [...t.cells].map(((t, i) => 0 === a || d[i] ? e(t) : (t => {
+                    const a = t.trim();
+                    if (!a || "-" === a) return t;
+                    const e = a.replace(/,/g, "");
+                    return /^-?\d+(\.\d+)?$/.test(e) ? +e : t
+                })(e(t)))))),
+                o = XLSX.utils.aoa_to_sheet(r),
+                l = XLSX.utils.decode_range(o["!ref"]);
+            d.forEach(((t, a) => {
+                if (t)
+                    for (let t = 1; t <= l.e.r; t++) {
+                        const e = o[XLSX.utils.encode_cell({
+                            r: t,
+                            c: a
+                        })];
+                        e && (e.t = "s", delete e.z, delete e.w)
+                    }
+            })), XLSX.utils.book_append_sheet(t, o, (a.closest(".tab-content").id || "SHEET").toUpperCase().slice(0, 31))
+        })), XLSX.writeFile(t, `${a}_GSTR1_${session.gstin}.xlsx`)
+    })), createB2BTable(t, a), createB2CSTable(t, a), createB2CLTable(t, a), createNILTable(t, a), createCDNTable(t, a), createB2BATable(t, a), createCDNATable(t, a), createEXPOTable(t, a), createHSNTable(t, a);
+    document.getElementById("tableSearch").addEventListener("input", (function() {
+        const t = this.value.toLowerCase();
+        document.querySelectorAll("#result .result-tab").forEach((a => {
+            a.querySelectorAll("tbody tr").forEach((a => {
+                const e = a.innerText.toLowerCase();
+                a.style.display = e.includes(t) ? "" : "none"
+            }))
+        }))
+    }))
+}
+
+function createB2BTable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.b2b) return void(document.getElementById("b2b").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.b2b.forEach((t => {
+        let d = t.ctin || "Unknown Trader";
+        (t.inv || []).forEach((t => {
+            i++;
+            let r = 0,
+                o = 0,
+                l = 0,
+                S = 0,
+                s = 0;
+            (t.itms || []).forEach((t => {
+                r += t.itm_det?.txval || 0, o += t.itm_det?.iamt || 0, l += t.itm_det?.camt || 0, S += t.itm_det?.samt || 0, s += t.itm_det?.csamt || 0
+            }));
+            let T = o + l + S,
+                m = r ? +(T / r * 100).toFixed(2) : 0;
+            e.push({
+                FP: a,
+                SL: i,
+                Inv_Typ: t.inv_typ || "",
+                RcV: t.rchrg || "",
+                POS: t.pos || "",
+                GSTIN_of_supplier: d,
+                Invoice_number: t.inum || "",
+                Invoice_Date: t.idt || "",
+                Taxable: indianFormat(r),
+                IGST: indianFormat(o),
+                CGST: indianFormat(l),
+                SGST: indianFormat(S),
+                CESS: indianFormat(s),
+                GST: indianFormat(T.toFixed(2)),
+                TOTAL: indianFormat(t.val) || "",
+                Rate: m
+            }), n.Taxable += r, n.IGST += o, n.CGST += l, n.SGST += S, n.CESS += s, n.GST += T, n.TOTAL += t.val || 0
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        Inv_Typ: "",
+        RcV: "",
+        POS: "",
+        GSTIN_of_supplier: "Total",
+        Invoice_number: "",
+        Invoice_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("b2b").innerHTML = makeTableHTML(e, !0)
+}
+
+function createB2CSTable(t, a) {
+    const e = {
+        "01": "Jammu & Kashmir",
+        "02": "Himachal Pradesh",
+        "03": "Punjab",
+        "04": "Chandigarh",
+        "05": "Uttarakhand",
+        "06": "Haryana",
+        "07": "Delhi",
+        "08": "Rajasthan",
+        "09": "Uttar Pradesh",
+        10: "Bihar",
+        11: "Sikkim",
+        12: "Arunachal Pradesh",
+        13: "Nagaland",
+        14: "Manipur",
+        15: "Mizoram",
+        16: "Tripura",
+        17: "Meghalaya",
+        18: "Assam",
+        19: "West Bengal",
+        20: "Jharkhand",
+        21: "Odisha",
+        22: "Chhattisgarh",
+        23: "Madhya Pradesh",
+        24: "Gujarat",
+        25: "Daman & Diu",
+        26: "Dadra & Nagar Haveli",
+        27: "Maharashtra",
+        28: "Andhra Pradesh",
+        29: "Karnataka",
+        30: "Goa",
+        31: "Lakshadweep",
+        32: "Kerala",
+        33: "Tamil Nadu",
+        34: "Puducherry",
+        35: "Andaman & Nicobar Islands",
+        36: "Telangana",
+        37: "Andhra Pradesh (New)",
+        38: "Ladakh",
+        97: "Other Territory"
+    };
+    let i = [],
+        n = 0;
+    if (!t.b2cs) return void(document.getElementById("b2cs").innerHTML = "<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR B2CS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let d = {
+        Amount: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.b2cs.forEach((t => {
+        n++;
+        let r = (t.iamt || 0) + (t.camt || 0) + (t.samt || 0),
+            o = r + (t.txval || 0),
+            l = t.pos ? String(t.pos).padStart(2, "0") : "",
+            S = e[l] ? `${l} - ${e[l]}` : l;
+        i.push({
+            FP: a,
+            SL: n,
+            State: S,
+            Amount: indianFormat(t.txval) || 0,
+            IGST: indianFormat(t.iamt) || 0,
+            CGST: indianFormat(t.camt) || 0,
+            SGST: indianFormat(t.samt) || 0,
+            CESS: indianFormat(t.csamt) || 0,
+            GST: indianFormat(r.toFixed(2)),
+            TOTAL: indianFormat(o.toFixed(2)),
+            Rate: t.rt || 0
+        }), d.Amount += t.txval || 0, d.IGST += t.iamt || 0, d.CGST += t.camt || 0, d.SGST += t.samt || 0, d.CESS += t.csamt || 0, d.GST += r, d.TOTAL += o
+    })), i.push({
+        FP: "",
+        SL: "",
+        State: "Total",
+        Amount: indianFormat(d.Amount.toFixed(2)),
+        IGST: indianFormat(d.IGST.toFixed(2)),
+        CGST: indianFormat(d.CGST.toFixed(2)),
+        SGST: indianFormat(d.SGST.toFixed(2)),
+        CESS: indianFormat(d.CESS.toFixed(2)),
+        GST: indianFormat(d.GST.toFixed(2)),
+        TOTAL: indianFormat(d.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("b2cs").innerHTML = makeTableHTML(i, !0)
+}
+
+function createB2CLTable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.b2cl) return void(document.getElementById("b2cl").innerHTML = "<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR B2CL</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Amount: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.b2cl.forEach((t => {
+        let a = t.pos || "";
+        (t.inv || []).forEach((t => {
+            i++;
+            let d = 0,
+                r = 0,
+                o = 0,
+                l = 0,
+                S = 0;
+            (t.itms || []).forEach((t => {
+                d += t.itm_det?.txval || 0, r += t.itm_det?.iamt || 0, o += t.itm_det?.camt || 0, l += t.itm_det?.samt || 0, S += t.itm_det?.csamt || 0
+            }));
+            let s = r + o + l,
+                T = d ? +(s / d * 100).toFixed(2) : 0,
+                m = d + s;
+            e.push({
+                SL: i,
+                POS: a || "",
+                Bill_number: t.inum || "",
+                Bill_Date: t.idt || "",
+                Taxable: indianFormat(d),
+                IGST: indianFormat(r),
+                CGST: indianFormat(o),
+                SGST: indianFormat(l),
+                CESS: indianFormat(S),
+                GST: indianFormat(s.toFixed(2)),
+                TOTAL: indianFormat(m.toFixed(2)),
+                Rate: T
+            }), n.Taxable += d, n.IGST += r, n.CGST += o, n.SGST += l, n.CESS += S, n.GST += s, n.TOTAL += m
+        }))
+    })), e.push({
+        SL: "",
+        POS: "Total",
+        Bill_number: "",
+        Bill_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("b2cl").innerHTML = makeTableHTML(e, !0)
+}
+
+function createNILTable(t, a) {
+    let e = [];
+    if (!t.nil) return void(document.getElementById("nil").innerHTML = "<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR NIL</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let i = {
+        Amount: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.nil.inv.forEach((t => {
+        0;
+        let a = 0 + (t.expt_amt || 0);
+        e.push({
+            Supply_Type: t.sply_ty + " Exempt",
+            Amount: indianFormat(t.expt_amt) || 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: indianFormat(t.expt_amt) || 0,
+            Rate: t.rt || 0
+        }), e.push({
+            Supply_Type: t.sply_ty + " NIL",
+            Amount: indianFormat(t.nil_amt) || 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: indianFormat(t.nil_amt) || 0,
+            Rate: t.rt || 0
+        }), e.push({
+            Supply_Type: t.sply_ty + " NA",
+            Amount: indianFormat(t.ngsup_amt) || 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: indianFormat(t.ngsup_amt) || 0,
+            Rate: t.rt || 0
+        }), i.Amount += t.expt_amt || 0 + t.nil_amt || 0 + t.ngsup_amt || 0, i.IGST += 0, i.CGST += 0, i.SGST += 0, i.CESS += 0, i.GST += 0, i.TOTAL += a
+    })), e.push({
+        Supply_Type: "Total",
+        Amount: indianFormat(i.Amount.toFixed(2)),
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: indianFormat(i.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("nil").innerHTML = makeTableHTML(e, !0)
+}
+
+function createCDNTable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.cdnr) return void(document.getElementById("cdn").innerHTML = "<table class='result-tab'><thead><tr style='text-align: right;'><td>GSTR CDNR</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.cdnr.forEach((t => {
+        let d = t.ctin || "Unknown Trader";
+        (t.nt || []).forEach((t => {
+            i++;
+            let r = t.itms?.[0]?.itm_det || {},
+                o = (r.iamt || 0) + (r.camt || 0) + (r.samt || 0),
+                l = t.val || 0;
+            e.push({
+                FP: a,
+                SL: i,
+                Typ: t.ntty || "",
+                Inv_Typ: t.inv_typ || "",
+                POS: t.pos || "",
+                RcV: t.rchrg || "",
+                GSTIN_of_supplier: d,
+                CN_number: t.nt_num || "",
+                CN_Date: t.nt_dt || "",
+                Taxable: indianFormat(r.txval) || 0,
+                IGST: indianFormat(r.iamt) || 0,
+                CGST: indianFormat(r.camt) || 0,
+                SGST: indianFormat(r.samt) || 0,
+                CESS: indianFormat(r.csamt) || 0,
+                GST: indianFormat(o.toFixed(2)),
+                TOTAL: indianFormat(l.toFixed(2)),
+                Rate: r.rt || ""
+            }), n.Taxable += r.txval || 0, n.IGST += r.iamt || 0, n.CGST += r.camt || 0, n.SGST += r.samt || 0, n.CESS += r.csamt || 0, n.GST += o, n.TOTAL += l
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        Typ: "",
+        Inv_Typ: "",
+        POS: "",
+        RcV: "",
+        GSTIN_of_supplier: "Total",
+        CN_number: "",
+        CN_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("cdn").innerHTML = makeTableHTML(e, !0)
+}
+
+function createB2BATable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.b2ba) return void(document.getElementById("b2ba").innerHTML = "<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR B2BA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.b2ba.forEach((t => {
+        let d = t.ctin || "Unknown Trader";
+        (t.inv || []).forEach((t => {
+            i++;
+            let r = t.itms?.[0]?.itm_det || {},
+                o = (r.iamt || 0) + (r.camt || 0) + (r.samt || 0),
+                l = t.val || 0;
+            e.push({
+                FP: a,
+                SL: i,
+                Inv_Typ: t.inv_typ || "",
+                RcV: t.rchrg || "",
+                POS: t.pos || "",
+                GSTIN_of_supplier: d,
+                Invoice_number: t.inum || "",
+                Invoice_Date: t.idt || "",
+                Taxable: indianFormat(r.txval) || 0,
+                IGST: indianFormat(r.iamt) || 0,
+                CGST: indianFormat(r.camt) || 0,
+                SGST: indianFormat(r.samt) || 0,
+                CESS: indianFormat(r.csamt) || 0,
+                GST: indianFormat(o.toFixed(2)),
+                TOTAL: indianFormat(l.toFixed(2)),
+                Rate: r.rt || "",
+                OLD_Inv_num: t.oinum || "",
+                OLD_Inv_dt: t.oidt || ""
+            }), n.Taxable += r.txval || 0, n.IGST += r.iamt || 0, n.CGST += r.camt || 0, n.SGST += r.samt || 0, n.CESS += r.csamt || 0, n.GST += o, n.TOTAL += l
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        Inv_Typ: "",
+        RcV: "",
+        POS: "",
+        GSTIN_of_supplier: "Total",
+        Invoice_number: "",
+        Invoice_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        OLD_Inv_num: "",
+        OLD_Inv_dt: ""
+    }), document.getElementById("b2ba").innerHTML = makeTableHTML(e, !0)
+}
+
+function createCDNATable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.cdnra) return void(document.getElementById("cdna").innerHTML = "<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR CDNA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.cdnra.forEach((t => {
+        let d = t.ctin || "Unknown Trader";
+        (t.nt || []).forEach((t => {
+            i++;
+            let r = t.itms?.[0]?.itm_det || {},
+                o = (r.iamt || 0) + (r.camt || 0) + (r.samt || 0),
+                l = t.val || 0;
+            e.push({
+                FP: a,
+                SL: i,
+                Typ: t.ntty || "",
+                Inv_Typ: t.inv_typ || "",
+                POS: t.pos || "",
+                RcV: t.rchrg || "",
+                GSTIN_of_supplier: d,
+                CN_number: t.nt_num || "",
+                CN_Date: t.nt_dt || "",
+                Taxable: indianFormat(r.txval) || 0,
+                IGST: indianFormat(r.iamt) || 0,
+                CGST: indianFormat(r.camt) || 0,
+                SGST: indianFormat(r.samt) || 0,
+                CESS: indianFormat(r.csamt) || 0,
+                GST: indianFormat(o.toFixed(2)),
+                TOTAL: indianFormat(l.toFixed(2)),
+                Rate: r.rt || "",
+                OLD_Inv_num: t.ont_num || "",
+                OLD_Inv_dt: t.ont_dt || ""
+            }), n.Taxable += r.txval || 0, n.IGST += r.iamt || 0, n.CGST += r.camt || 0, n.SGST += r.samt || 0, n.CESS += r.csamt || 0, n.GST += o, n.TOTAL += l
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        Typ: "",
+        Inv_Typ: "",
+        POS: "",
+        RcV: "",
+        GSTIN_of_supplier: "Total",
+        CN_number: "",
+        CN_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        OLD_Inv_num: "",
+        OLD_Inv_dt: ""
+    }), document.getElementById("cdna").innerHTML = makeTableHTML(e, !0)
+}
+
+function createEXPOTable(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.exp) return void(document.getElementById("expo").innerHTML = "<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR EXPORT</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.exp.forEach((t => {
+        (t.inv || []).forEach((t => {
+            i++;
+            let d = t.itms?.[0]?.itm_det || {},
+                r = (d.iamt || 0) + (d.camt || 0) + (d.samt || 0),
+                o = t.val || 0;
+            e.push({
+                FP: a,
+                SL: i,
+                Inv_Typ: "exp",
+                INV_number: t.inum || "",
+                INV_Date: t.idt || "",
+                Taxable: indianFormat(d.txval) || 0,
+                IGST: indianFormat(d.iamt) || 0,
+                CGST: indianFormat(d.camt) || 0,
+                SGST: indianFormat(d.samt) || 0,
+                CESS: indianFormat(d.csamt) || 0,
+                GST: indianFormat(r.toFixed(2)),
+                TOTAL: indianFormat(o.toFixed(2)),
+                Rate: d.rt || ""
+            }), n.Taxable += d.txval || 0, n.IGST += d.iamt || 0, n.CGST += d.camt || 0, n.SGST += d.samt || 0, n.CESS += d.csamt || 0, n.GST += r, n.TOTAL += o
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        Inv_Typ: "",
+        INV_number: "Total",
+        INV_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("expo").innerHTML = makeTableHTML(e, !0)
+}
+
+function createHSNTable(t, a) {
+    let e = [];
+    if (!t.hsn) return void(document.getElementById("hsn").innerHTML = "<table class='result-tab'><thead style='text-align: right;'><tr><td>GSTR HSN WISE DETAILS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let i = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    if (t.hsn.data) var n = t.hsn.data;
+    else {
+        n = t.hsn.hsn_b2b;
+        var d = t.hsn.hsn_b2c
+    }
+    n.forEach((t => {
+        let a = t || {},
+            n = (a.iamt || 0) + (a.camt || 0) + (a.samt || 0),
+            d = t.txval + n + (a.csamt || 0);
+        e.push({
+            IN: "B2B",
+            hsn_sc: a.hsn_sc || "",
+            Taxable: indianFormat(a.txval) || 0,
+            IGST: indianFormat(a.iamt) || 0,
+            CGST: indianFormat(a.camt) || 0,
+            SGST: indianFormat(a.samt) || 0,
+            CESS: indianFormat(a.csamt) || 0,
+            GST: indianFormat(n.toFixed(2)),
+            TOTAL: indianFormat(d.toFixed(2)),
+            Rate: a.rt || ""
+        }), i.Taxable += a.txval || 0, i.IGST += a.iamt || 0, i.CGST += a.camt || 0, i.SGST += a.samt || 0, i.CESS += a.csamt || 0, i.GST += n, i.TOTAL += d
+    })), d && d.forEach((t => {
+        let a = t || {},
+            n = (a.iamt || 0) + (a.camt || 0) + (a.samt || 0),
+            d = t.txval + n + (a.csamt || 0);
+        e.push({
+            IN: "B2C",
+            hsn_sc: a.hsn_sc || "",
+            Taxable: indianFormat(a.txval) || 0,
+            IGST: indianFormat(a.iamt) || 0,
+            CGST: indianFormat(a.camt) || 0,
+            SGST: indianFormat(a.samt) || 0,
+            CESS: indianFormat(a.csamt) || 0,
+            GST: indianFormat(n.toFixed(2)),
+            TOTAL: indianFormat(d.toFixed(2)),
+            Rate: a.rt || ""
+        }), i.Taxable += a.txval || 0, i.IGST += a.iamt || 0, i.CGST += a.camt || 0, i.SGST += a.samt || 0, i.CESS += a.csamt || 0, i.GST += n, i.TOTAL += d
+    })), e.push({
+        IN: "",
+        hsn_sc: "",
+        Taxable: indianFormat(i.Taxable.toFixed(2)),
+        IGST: indianFormat(i.IGST.toFixed(2)),
+        CGST: indianFormat(i.CGST.toFixed(2)),
+        SGST: indianFormat(i.SGST.toFixed(2)),
+        CESS: indianFormat(i.CESS.toFixed(2)),
+        GST: indianFormat(i.GST.toFixed(2)),
+        TOTAL: indianFormat(i.TOTAL.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("hsn").innerHTML = makeTableHTML(e, !0)
+}
+
+function makeTableHTML(t) {
+    if (!t.length) return "<p>No data found.</p>";
+    let a = Object.keys(t[0]),
+        e = "<table class='result-tab'><thead><tr>";
+    return a.forEach((t => e += `<th>${t}</th>`)), e += "</tr></thead><tbody>", t.forEach((t => {
+        e += "<tr>", a.forEach((a => e += `<td>${t[a]}</td>`)), e += "</tr>"
+    })), e += "</tbody></table>", e
+}
+
+function gstr2a(t, a) {
+    const e = document.getElementById("result");
+    e.innerHTML = `\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n            <div class="tab" data-target="tds">TDS</div>\n            <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n             <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR2A: ${formatMonthYear(t.fp)} | Dt: ${(new Date).toLocaleDateString("en-GB")}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="cdn" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n        <div id="tds" class="tab-content"></div>\n    `, maximizerfn(), e.querySelectorAll(".tab").forEach((t => {
+        t.addEventListener("click", (() => {
+            e.querySelectorAll(".tab").forEach((t => t.classList.remove("active"))), e.querySelectorAll(".tab-content").forEach((t => t.classList.remove("active"))), t.classList.add("active"), document.getElementById(t.dataset.target).classList.add("active")
+        }))
+    })), document.getElementById("exportBtn").addEventListener("click", (() => {
+        const t = XLSX.utils.book_new(),
+            e = t => (t?.innerText ?? t?.textContent ?? "").trim();
+        document.querySelectorAll(".tab-content table").forEach((a => {
+            const i = [...a.rows],
+                n = Math.max(...i.map((t => t.cells.length))),
+                d = Array(n).fill(!1);
+            for (let t = 1; t < i.length; t++)
+                for (let a = 0; a < n; a++) {
+                    const n = e(i[t].cells[a]);
+                    ("-" === n || /^\d{2}-\d{2}-\d{4}$/.test(n)) && (d[a] = !0)
+                }
+            const r = i.map(((t, a) => [...t.cells].map(((t, i) => 0 === a || d[i] ? e(t) : (t => {
+                    const a = t.trim();
+                    if (!a || "-" === a) return t;
+                    const e = a.replace(/,/g, "");
+                    return /^-?\d+(\.\d+)?$/.test(e) ? +e : t
+                })(e(t)))))),
+                o = XLSX.utils.aoa_to_sheet(r),
+                l = XLSX.utils.decode_range(o["!ref"]);
+            d.forEach(((t, a) => {
+                if (t)
+                    for (let t = 1; t <= l.e.r; t++) {
+                        const e = o[XLSX.utils.encode_cell({
+                            r: t,
+                            c: a
+                        })];
+                        e && (e.t = "s", delete e.z, delete e.w)
+                    }
+            })), XLSX.utils.book_append_sheet(t, o, (a.closest(".tab-content").id || "SHEET").toUpperCase().slice(0, 31))
+        })), XLSX.writeFile(t, `${a}_GST2A_${session.gstin}.xlsx`)
+    })), createB2BTable2a(t, a), createCDNTable2a(t, a), createTDSTable2a(t, a);
+    document.getElementById("tableSearch").addEventListener("input", (function() {
+        const t = this.value.toLowerCase();
+        document.querySelectorAll("#result .result-tab").forEach((a => {
+            a.querySelectorAll("tbody tr").forEach((a => {
+                const e = a.innerText.toLowerCase();
+                a.style.display = e.includes(t) ? "" : "none"
+            }))
+        }))
+    }))
+}
+
+function createB2BTable2a(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.b2b || !Array.isArray(t.b2b)) return void(document.getElementById("b2b").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.b2b.forEach((t => {
+        let d = t.ctin || "Unknown Trader",
+            r = t.flprdr1 || "",
+            o = (t.fldtr1, t.cfs || "");
+        t.cfs3b;
+        (t.inv || []).forEach((t => {
+            i++;
+            let l = 0,
+                S = 0,
+                s = 0,
+                T = 0,
+                m = 0;
+            (t.itms || []).forEach((t => {
+                l += t.itm_det?.txval || 0, S += t.itm_det?.iamt || 0, s += t.itm_det?.camt || 0, T += t.itm_det?.samt || 0, m += t.itm_det?.csamt || 0
+            }));
+            let c = S + s + T,
+                b = l ? +(c / l * 100).toFixed(2) : 0,
+                G = l + c;
+            e.push({
+                FP: a,
+                SL: i,
+                POS: t.pos || "",
+                GSTIN_of_vendor: d,
+                Bill_number: t.inum || "",
+                Bill_Date: t.idt || "",
+                Taxable: indianFormat(l),
+                IGST: indianFormat(S),
+                CGST: indianFormat(s),
+                SGST: indianFormat(T),
+                CESS: indianFormat(m),
+                GST: indianFormat(c.toFixed(2)),
+                TOTAL: indianFormat(G.toFixed(2)),
+                Rate: b,
+                RecV: t.rchrg || "",
+                FillMonth: r,
+                cfs: o
+            }), n.Taxable += l, n.IGST += S, n.CGST += s, n.SGST += T, n.CESS += m, n.GST += c, n.TOTAL += G
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        POS: "",
+        GSTIN_of_vendor: "Total",
+        Bill_number: "",
+        Bill_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        FillMonth: "",
+        cfs: ""
+    }), document.getElementById("b2b").innerHTML = makeTableHTML(e, !0)
+}
+
+function createCDNTable2a(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.cdn || !Array.isArray(t.cdn)) return void(document.getElementById("cdn").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR CDN</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = {
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: 0,
+        GST: 0,
+        TOTAL: 0
+    };
+    t.cdn.forEach((t => {
+        let d = t.ctin || "Unknown Trader",
+            r = t.flprdr1 || "",
+            o = (t.fldtr1, t.cfs || ""),
+            l = t.cfs3b || "";
+        (t.nt || []).forEach((t => {
+            i++;
+            let S = 0,
+                s = 0,
+                T = 0,
+                m = 0,
+                c = 0;
+            (t.itms || []).forEach((t => {
+                S += t.itm_det?.txval || 0, s += t.itm_det?.iamt || 0, T += t.itm_det?.camt || 0, m += t.itm_det?.samt || 0, c += t.itm_det?.csamt || 0
+            }));
+            let b = s + T + m,
+                G = S ? +(b / S * 100).toFixed(2) : 0,
+                F = t.val || 0;
+            e.push({
+                FP: a,
+                SL: i,
+                POS: t.pos || "",
+                Typ: t.ntty || "",
+                GSTIN_of_vendor: d,
+                CN_number: t.nt_num || "",
+                CN_Date: t.nt_dt || "",
+                Taxable: indianFormat(S),
+                IGST: indianFormat(s),
+                CGST: indianFormat(T),
+                SGST: indianFormat(m),
+                CESS: indianFormat(c),
+                GST: indianFormat(b.toFixed(2)),
+                TOTAL: indianFormat(F.toFixed(2)),
+                Rate: G,
+                RecV: t.rchrg || "",
+                FillMonth: r,
+                cfs: o,
+                cfs3b: l
+            }), n.Taxable += S, n.IGST += s, n.CGST += T, n.SGST += m, n.CESS += c, n.GST += b, n.TOTAL += F
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        POS: "",
+        Typ: "",
+        GSTIN_of_vendor: "Total",
+        CN_number: "",
+        CN_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        FillMonth: "",
+        cfs: "",
+        cfs3b: ""
+    }), document.getElementById("cdn").innerHTML = makeTableHTML(e, !0)
+}
+
+function createTDSTable2a(t, a) {
+    let e = [],
+        i = 0;
+    if (!t.tds || !Array.isArray(t.tds)) return void(document.getElementById("tds").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR TDS</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>");
+    let n = 0,
+        d = 0,
+        r = 0,
+        o = 0,
+        l = 0,
+        S = 0;
+    t.tds.forEach((t => {
+        i++;
+        let a = +t.amt_ded || 0,
+            s = +t.iamt || 0,
+            T = +t.camt || 0,
+            m = +t.samt || 0,
+            c = s + T + m,
+            b = a ? +(c / a * 100).toFixed(2) : 0,
+            G = a + c;
+        n += a, d += s, r += T, o += m, l += c, S += G, e.push({
+            FP: t.month || "",
+            SL: i,
+            GSTIN_of_vendor: t.gstin_deductor || "",
+            Vendor_Name: t.deductor_name || "Unknown deductor",
+            Taxable: indianFormat(a),
+            IGST: indianFormat(s),
+            CGST: indianFormat(T),
+            SGST: indianFormat(m),
+            GST: indianFormat(c),
+            TOTAL: indianFormat(G),
+            Rate: b
+        })
+    })), e.push({
+        FP: "",
+        SL: "",
+        GSTIN_of_vendor: "",
+        Vendor_Name: "TOTAL",
+        Taxable: indianFormat(n.toFixed(2)),
+        IGST: indianFormat(d.toFixed(2)),
+        CGST: indianFormat(r.toFixed(2)),
+        SGST: indianFormat(o.toFixed(2)),
+        GST: indianFormat(l.toFixed(2)),
+        TOTAL: indianFormat(S.toFixed(2)),
+        Rate: ""
+    }), document.getElementById("tds").innerHTML = makeTableHTML(e)
+}
+
+function gstr2b(t, a) {
+    const e = document.getElementById("result");
+    e.innerHTML = `\n        <div class="tabs">\n            <div class="tab active" data-target="b2b">B2B</div>\n            <div class="tab" data-target="cdn">CDN</div>\n            <div class="tab" data-target="ecom">ECOM</div>\n            <div class="tab" data-target="b2ba">B2BA</div>\n        <input type="text" id="tableSearch" class="btn btn-outline-primary" placeholder="Search..." style="margin-right:20px;  border-radius:18px;"/>\n             <span style="font-size:15px; color: #007bff; margin-left:1%; white-space: nowrap;">GSTR2B: ${formatMonthYear(t.data.rtnprd)} | Dt: ${t.data.gendt}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:1%;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="b2b" class="tab-content active"></div>\n        <div id="cdn" class="tab-content"></div>\n        <div id="ecom" class="tab-content"></div>\n        <div id="b2ba" class="tab-content"></div>\n            `, maximizerfn(), e.querySelectorAll(".tab").forEach((t => {
+        t.addEventListener("click", (() => {
+            e.querySelectorAll(".tab").forEach((t => t.classList.remove("active"))), e.querySelectorAll(".tab-content").forEach((t => t.classList.remove("active"))), t.classList.add("active"), document.getElementById(t.dataset.target).classList.add("active")
+        }))
+    })), document.getElementById("exportBtn").addEventListener("click", (() => {
+        const t = XLSX.utils.book_new(),
+            e = t => (t?.innerText ?? t?.textContent ?? "").trim();
+        document.querySelectorAll(".tab-content table").forEach((a => {
+            const i = [...a.rows],
+                n = Math.max(...i.map((t => t.cells.length))),
+                d = Array(n).fill(!1);
+            for (let t = 1; t < i.length; t++)
+                for (let a = 0; a < n; a++) {
+                    const n = e(i[t].cells[a]);
+                    ("-" === n || /^\d{2}-\d{2}-\d{4}$/.test(n)) && (d[a] = !0)
+                }
+            const r = i.map(((t, a) => [...t.cells].map(((t, i) => 0 === a || d[i] ? e(t) : (t => {
+                    const a = t.trim();
+                    if (!a || "-" === a) return t;
+                    const e = a.replace(/,/g, "");
+                    return /^-?\d+(\.\d+)?$/.test(e) ? +e : t
+                })(e(t)))))),
+                o = XLSX.utils.aoa_to_sheet(r),
+                l = XLSX.utils.decode_range(o["!ref"]);
+            d.forEach(((t, a) => {
+                if (t)
+                    for (let t = 1; t <= l.e.r; t++) {
+                        const e = o[XLSX.utils.encode_cell({
+                            r: t,
+                            c: a
+                        })];
+                        e && (e.t = "s", delete e.z, delete e.w)
+                    }
+            })), XLSX.utils.book_append_sheet(t, o, (a.closest(".tab-content").id || "SHEET").toUpperCase().slice(0, 31))
+        })), XLSX.writeFile(t, `${a}_GSTR2B_${session.gstin}.xlsx`)
+    })), createB2BTable2b(t, a), createCDNTable2b(t, a), createECOMTable2b(t, a), createB2BATable2b(t, a);
+    document.getElementById("tableSearch").addEventListener("input", (function() {
+        const t = this.value.toLowerCase();
+        document.querySelectorAll("#result .result-tab").forEach((a => {
+            a.querySelectorAll("tbody tr").forEach((a => {
+                const e = a.innerText.toLowerCase();
+                a.style.display = e.includes(t) ? "" : "none"
+            }))
+        }))
+    }))
+}
+
+function createB2BTable2b(t, a) {
+    let e = [],
+        i = 0,
+        n = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: 0
+        };
+    t?.data?.docdata?.b2b && Array.isArray(t.data.docdata.b2b) ? (t.data.docdata.b2b.forEach((t => {
+        let d = t.trdnm || "N/A",
+            r = t.ctin || "N/A",
+            o = t.supprd || "";
+        t.supfildt;
+        (t.inv || []).forEach((t => {
+            i++;
+            let l = t.inum || "N/A",
+                S = t.dt || "N/A",
+                s = +(t.val || 0),
+                T = t.pos || "",
+                m = t.rev || "",
+                c = t.itcavl || "",
+                b = (t.typ, t.irn, t.irngendate, 0),
+                G = 0,
+                F = 0,
+                x = 0,
+                u = 0;
+            Array.isArray(t.items) && t.items.length > 0 ? t.items.forEach((t => {
+                b += +t.txval || 0, G += +t.igst || 0, F += +t.cgst || 0, x += +t.sgst || 0, u += +t.cess || 0
+            })) : (b = +(t.txval || 0), G = +(t.igst || 0), F = +(t.cgst || 0), x = +(t.sgst || 0), u = +(t.cess || 0));
+            let _ = G + F + x,
+                C = b ? +(_ / b * 100).toFixed(2) : 0;
+            n.Taxable += b, n.IGST += G, n.CGST += F, n.SGST += x, n.CESS += u, n.GST += _, n.TOTAL += s, e.push({
+                FP: a,
+                SL: i,
+                GSTIN_of_vendor: r,
+                Vendor_Name: d,
+                Bill_number: l,
+                Bill_Date: S,
+                Taxable: indianFormat(b.toFixed(2)),
+                IGST: indianFormat(G.toFixed(2)),
+                CGST: indianFormat(F.toFixed(2)),
+                SGST: indianFormat(x.toFixed(2)),
+                CESS: indianFormat(u.toFixed(2)),
+                GST: indianFormat(_.toFixed(2)),
+                TOTAL: indianFormat(s.toFixed(2)),
+                Rate: C.toFixed(2),
+                RecV: m,
+                POS: T,
+                FillMonth: o,
+                itcavi: c
+            })
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        GSTIN_of_vendor: "",
+        Vendor_Name: "TOTAL",
+        Bill_number: "",
+        Bill_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        POS: "",
+        FillMonth: "",
+        itcavi: ""
+    }), document.getElementById("b2b").innerHTML = makeTableHTML(e)) : document.getElementById("b2b").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR B2B</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"
+}
+
+function createCDNTable2b(t, a) {
+    let e = [],
+        i = 0,
+        n = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: 0
+        };
+    t?.data?.docdata?.cdnr && Array.isArray(t.data.docdata.cdnr) ? (t.data.docdata.cdnr.forEach((t => {
+        let d = t.trdnm || "N/A",
+            r = t.ctin || "N/A",
+            o = t.supprd || "";
+        t.supfildt, t.suptyp;
+        (t.nt || []).forEach((t => {
+            i++;
+            let l = 0,
+                S = 0,
+                s = 0,
+                T = 0,
+                m = 0;
+            t.items && t.items.length > 0 ? t.items.forEach((t => {
+                l += +t.txval || 0, S += +t.igst || 0, s += +t.cgst || 0, T += +t.sgst || 0, m += +t.cess || 0
+            })) : (l = +(t.txval || 0), S = +(t.igst || 0), s = +(t.cgst || 0), T = +(t.sgst || 0), m = +(t.cess || 0));
+            let c = S + s + T,
+                b = l ? +(c / l * 100).toFixed(2) : 0;
+            n.Taxable += l, n.IGST += S, n.CGST += s, n.SGST += T, n.CESS += m, n.GST += c, n.TOTAL += +(t.val || 0);
+            let G = t.itcavl || "",
+                F = "Y" === G ? "Y" : "X";
+            e.push({
+                FP: a,
+                SL: i,
+                POS: t.pos || "",
+                Typ: t.typ || "",
+                GSTIN_of_vendor: r,
+                Vendor_Name: d,
+                CN_number: t.ntnum || "",
+                CN_Date: t.dt || "",
+                Taxable: indianFormat(l.toFixed(2)),
+                IGST: indianFormat(S.toFixed(2)),
+                CGST: indianFormat(s.toFixed(2)),
+                SGST: indianFormat(T.toFixed(2)),
+                CESS: indianFormat(m.toFixed(2)),
+                GST: indianFormat(c.toFixed(2)),
+                TOTAL: indianFormat((+(t.val || 0)).toFixed(2)),
+                Rate: b.toFixed(2),
+                RecV: t.rev || "",
+                FillMonth: o,
+                itcavi: G,
+                itc: F
+            })
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        POS: "",
+        Typ: "",
+        GSTIN_of_vendor: "",
+        Vendor_Name: "TOTAL",
+        CN_number: "",
+        CN_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        FillMonth: "",
+        itcavi: "",
+        itc: ""
+    }), document.getElementById("cdn").innerHTML = makeTableHTML(e)) : document.getElementById("cdn").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR CDN</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"
+}
+
+function createECOMTable2b(t, a) {
+    let e = [],
+        i = 0,
+        n = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: 0
+        };
+    t?.data?.docdata?.ecom && Array.isArray(t.data.docdata.ecom) ? (t.data.docdata.ecom.forEach((t => {
+        let d = t.trdnm || "N/A",
+            r = t.ctin || "N/A",
+            o = t.supprd || "";
+        t.supfildt;
+        (t.inv || []).forEach((t => {
+            i++;
+            let l = 0,
+                S = 0,
+                s = 0,
+                T = 0,
+                m = 0;
+            t.items && t.items.length > 0 ? t.items.forEach((t => {
+                l += +t.txval || 0, S += +t.igst || 0, s += +t.cgst || 0, T += +t.sgst || 0, m += +t.cess || 0
+            })) : (l = +(t.txval || 0), S = +(t.igst || 0), s = +(t.cgst || 0), T = +(t.sgst || 0), m = +(t.cess || 0));
+            let c = S + s + T,
+                b = l ? +(c / l * 100).toFixed(2) : 0;
+            n.Taxable += l, n.IGST += S, n.CGST += s, n.SGST += T, n.CESS += m, n.GST += c, n.TOTAL += +(t.val || 0);
+            let G = t.itcavl || "",
+                F = "Y" === G ? "Y" : "X";
+            e.push({
+                FP: a,
+                SL: i,
+                GSTIN_of_vendor: r,
+                Vendor_Name: d,
+                Bill_number: t.inum || "",
+                Bill_Date: t.dt || "",
+                Taxable: indianFormat(l.toFixed(2)),
+                IGST: indianFormat(S.toFixed(2)),
+                CGST: indianFormat(s.toFixed(2)),
+                SGST: indianFormat(T.toFixed(2)),
+                CESS: indianFormat(m.toFixed(2)),
+                GST: indianFormat(c.toFixed(2)),
+                TOTAL: indianFormat((+(t.val || 0)).toFixed(2)),
+                Rate: b.toFixed(2),
+                RecV: t.rev || "",
+                POS: t.pos || "",
+                FillMonth: o,
+                itcavi: G,
+                itc: F
+            })
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        GSTIN_of_vendor: "",
+        Vendor_Name: "TOTAL",
+        Bill_number: "",
+        Bill_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        POS: "",
+        FillMonth: "",
+        itcavi: "",
+        itc: ""
+    }), document.getElementById("ecom").innerHTML = makeTableHTML(e)) : document.getElementById("ecom").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR ECOM</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"
+}
+
+function createB2BATable2b(t, a) {
+    let e = [],
+        i = 0,
+        n = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0,
+            TOTAL: 0,
+            C_Taxable: 0,
+            C_IGST: 0,
+            C_CGST: 0,
+            C_SGST: 0,
+            C_CESS: 0,
+            C_GST: 0,
+            C_TOTAL: 0
+        };
+    t?.data?.docdata?.b2ba && Array.isArray(t.data.docdata.b2ba) ? (t.data.docdata.b2ba.forEach((t => {
+        let d = t.trdnm || "N/A",
+            r = t.ctin || "N/A",
+            o = t.supprd || "";
+        (t.inv || []).forEach((t => {
+            i++;
+            let l = +(t.txval || 0),
+                S = +(t.igst || 0),
+                s = +(t.cgst || 0),
+                T = +(t.sgst || 0),
+                m = +(t.cess || 0),
+                c = S + s + T,
+                b = l ? +(c / l * 100).toFixed(2) : 0,
+                G = l,
+                F = S,
+                x = s,
+                u = T,
+                _ = m,
+                C = c,
+                h = +(t.val || 0),
+                p = b;
+            t.items && t.items.length > 0 && (l = S = s = T = m = 0, t.items.forEach((t => {
+                l += +(t.txval || 0), S += +(t.igst || 0), s += +(t.cgst || 0), T += +(t.sgst || 0), m += +(t.cess || 0)
+            })), c = S + s + T, b = l ? +(c / l * 100).toFixed(2) : 0), n.Taxable += l, n.IGST += S, n.CGST += s, n.SGST += T, n.CESS += m, n.GST += c, n.TOTAL += +(t.val || 0), n.C_Taxable += G, n.C_IGST += F, n.C_CGST += x, n.C_SGST += u, n.C_CESS += _, n.C_GST += C, n.C_TOTAL += h;
+            t.itcavl;
+            e.push({
+                FP: a,
+                SL: i,
+                POS: t.pos || "",
+                GSTIN_of_vendor: r,
+                Vendor_Name: d,
+                Bill_number: t.inum || "",
+                Bill_Date: t.dt || "",
+                Taxable: indianFormat(l.toFixed(2)),
+                IGST: indianFormat(S.toFixed(2)),
+                CGST: indianFormat(s.toFixed(2)),
+                SGST: indianFormat(T.toFixed(2)),
+                CESS: indianFormat(m.toFixed(2)),
+                GST: indianFormat(c.toFixed(2)),
+                TOTAL: indianFormat((+(t.val || 0)).toFixed(2)),
+                Rate: b.toFixed(2),
+                RecV: t.rev || "",
+                OBill_number: t.oinum || "",
+                OBill_Date: t.oidt || "",
+                C_Taxable: indianFormat(G.toFixed(2)),
+                C_IGST: indianFormat(F.toFixed(2)),
+                C_CGST: indianFormat(x.toFixed(2)),
+                C_SGST: indianFormat(u.toFixed(2)),
+                C_CESS: indianFormat(_.toFixed(2)),
+                C_GST: indianFormat(C.toFixed(2)),
+                C_TOTAL: indianFormat(h.toFixed(2)),
+                C_Rate: indianFormat(p.toFixed(2)),
+                FillMonth: o
+            })
+        }))
+    })), e.push({
+        FP: "",
+        SL: "",
+        POS: "",
+        GSTIN_of_vendor: "",
+        Vendor_Name: "TOTAL",
+        Bill_number: "",
+        Bill_Date: "",
+        Taxable: indianFormat(n.Taxable.toFixed(2)),
+        IGST: indianFormat(n.IGST.toFixed(2)),
+        CGST: indianFormat(n.CGST.toFixed(2)),
+        SGST: indianFormat(n.SGST.toFixed(2)),
+        CESS: indianFormat(n.CESS.toFixed(2)),
+        GST: indianFormat(n.GST.toFixed(2)),
+        TOTAL: indianFormat(n.TOTAL.toFixed(2)),
+        Rate: "",
+        RecV: "",
+        OBill_number: "",
+        OBill_Date: "",
+        C_Taxable: indianFormat(n.C_Taxable.toFixed(2)),
+        C_IGST: indianFormat(n.C_IGST.toFixed(2)),
+        C_CGST: indianFormat(n.C_CGST.toFixed(2)),
+        C_SGST: indianFormat(n.C_SGST.toFixed(2)),
+        C_CESS: indianFormat(n.C_CESS.toFixed(2)),
+        C_GST: indianFormat(n.C_GST.toFixed(2)),
+        C_TOTAL: indianFormat(n.C_TOTAL.toFixed(2)),
+        C_Rate: "",
+        FillMonth: ""
+    }), document.getElementById("b2ba").innerHTML = makeTableHTML(e)) : document.getElementById("b2ba").innerHTML = "<table class='result-tab'><thead><tr><td>GSTR B2BA</td></tr></thead><tbody><tr><td>No Data Available</td></tr></tbody></table>"
+}
+
+function gstr3b(t, a) {
+    const e = document.getElementById("result");
+    e.innerHTML = `\n        <div class="tabs">\n            <div class="tab active" data-target="Liability">Liability</div>\n            <div class="tab" data-target="Credit">Credit</div>\n            <div class="tab" data-target="Computation">Computation</div>\n         <div class="tab" data-target="inwardsupply">Inward Supplies</div>\n            <div class="tab" data-target="Payments">Payments</div>\n             <span style="font-size:15px; color: #007bff; margin-left:15%; white-space:nowrap;">GSTR3B:${formatMonthYear(t.ret_period)}</span>\n            <button id="exportBtn" class="btn btn-outline-primary" style="margin-left:160px;  border-radius:18px;"><i class="fa fa-file-excel-o" aria-hidden="true"></i> Download</button>\n        </div>\n        <div id="Liability" class="tab-content active"></div>\n        <div id="Credit" class="tab-content"></div>\n        <div id="Computation" class="tab-content"></div>\n        <div id="inwardsupply" class="tab-content"></div>\n        <div id="Payments" class="tab-content"></div>\n            `, maximizerfn(), e.querySelectorAll(".tab").forEach((t => {
+        t.addEventListener("click", (() => {
+            e.querySelectorAll(".tab").forEach((t => t.classList.remove("active"))), e.querySelectorAll(".tab-content").forEach((t => t.classList.remove("active"))), t.classList.add("active"), document.getElementById(t.dataset.target).classList.add("active")
+        }))
+    })), document.getElementById("exportBtn").addEventListener("click", (() => {
+        const t = XLSX.utils.book_new();
+        document.querySelectorAll(".tab-content").forEach((a => {
+            const e = a.querySelector("table");
+            if (e) {
+                const i = XLSX.utils.table_to_sheet(e);
+                XLSX.utils.book_append_sheet(t, i, a.id.toUpperCase())
+            }
+        })), XLSX.writeFile(t, `${a}_GSTR3B_${session.gstin}.xlsx`)
+    })), buildGSTR3B(t)
+}
+
+function buildGSTR3B(t, a = {}) {
+    const e = t => Number(t ?? 0),
+        i = t => String(t ?? "").replace(/'/g, "''").trim(),
+        n = a.period ?? t?.ret_period ?? "",
+        d = a.MNN ?? "",
+        r = t?.sup_details?.osup_det ?? {},
+        o = t?.sup_details?.osup_zero ?? {},
+        l = t?.sup_details?.osup_nil_exmp ?? {},
+        S = t?.sup_details?.isup_rev ?? {},
+        s = t?.sup_details?.osup_nongst ?? {},
+        T = Array.isArray(t?.itc_elg?.itc_avl) ? t.itc_elg.itc_avl : [],
+        m = Array.isArray(t?.itc_elg?.itc_rev) ? t.itc_elg.itc_rev : [],
+        c = Array.isArray(t?.itc_elg?.itc_inelg) ? t.itc_elg.itc_inelg : [],
+        b = t?.itc_elg?.itc_net ?? {},
+        G = t?.taxpayble?.returnsDbCdredList?.tax_paid?.pd_by_itc?.[0] ?? {},
+        F = t?.taxpayble?.returnsDbCdredList?.tax_paid?.pd_by_cash ?? [],
+        x = t?.taxpayble?.bal?.cash_bal ?? {},
+        u = t?.inward_sup?.isup_details ?? {},
+        _ = e(r.iamt) + e(o.iamt) + e(l.iamt) + e(s.iamt),
+        C = e(r.camt) + e(o.camt) + e(l.camt) + e(s.camt),
+        h = e(r.samt) + e(o.samt) + e(l.samt) + e(s.samt),
+        p = e(r.csamt) + e(o.csamt) + e(l.csamt) + e(s.csamt),
+        g = _ + C + h,
+        L = {
+            IMPG: "ITC_Import_Good",
+            IMPS: "ITC_Import_Service",
+            ISRC: "ITC_RCM_Charge",
+            ISD: "ITC_Inword_Supply",
+            OTH: "ITC_All_Others"
+        },
+        v = [];
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 1,
+        Nature: "Taxable",
+        in_details: "-",
+        Taxable: e(r.txval),
+        IGST: e(r.iamt),
+        CGST: e(r.camt),
+        SGST: e(r.samt),
+        CESS: e(r.csamt),
+        GST: e(r.iamt) + e(r.samt) + e(r.camt),
+        TOTAL: e(r.iamt) + e(r.samt) + e(r.camt) + e(r.txval)
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 2,
+        Nature: "Zero_Rate/SEZ",
+        in_details: "-",
+        Taxable: e(o.txval),
+        IGST: e(o.iamt),
+        CGST: e(o.camt),
+        SGST: e(o.samt),
+        CESS: e(o.csamt),
+        GST: e(o.iamt) + e(o.samt) + e(o.camt),
+        TOTAL: e(o.iamt) + e(o.samt) + e(o.camt) + e(o.txval)
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 3,
+        Nature: "Nil_Rate",
+        in_details: "-",
+        Taxable: e(l.txval),
+        IGST: e(l.iamt),
+        CGST: e(l.camt),
+        SGST: e(l.samt),
+        CESS: e(l.csamt),
+        GST: e(l.iamt) + e(l.samt) + e(l.camt),
+        TOTAL: e(l.iamt) + e(l.samt) + e(l.camt) + e(l.txval)
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 4,
+        Nature: "RCM_Charges",
+        in_details: "-",
+        Taxable: e(S.txval),
+        IGST: e(S.iamt),
+        CGST: e(S.camt),
+        SGST: e(S.samt),
+        CESS: e(S.csamt),
+        GST: e(S.iamt) + e(S.samt) + e(S.camt),
+        TOTAL: e(S.iamt) + e(S.samt) + e(S.camt) + e(S.txval)
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 5,
+        Nature: "NA_Rate",
+        in_details: "-",
+        Taxable: e(s.txval),
+        IGST: e(s.iamt),
+        CGST: e(s.camt),
+        SGST: e(s.samt),
+        CESS: e(s.csamt),
+        GST: e(s.iamt) + e(s.samt) + e(s.camt),
+        TOTAL: e(s.iamt) + e(s.samt) + e(s.camt) + e(s.txval)
+    });
+    let y = 0;
+    for (const t of T) {
+        y += 1;
+        const a = t?.ty ?? "";
+        v.push({
+            FP: n,
+            MNN: d,
+            SL: 5 + y,
+            Nature: L[a] ?? a,
+            in_details: a,
+            Taxable: 0,
+            IGST: e(t?.iamt),
+            CGST: e(t?.camt),
+            SGST: e(t?.samt),
+            CESS: e(t?.csamt),
+            GST: e(t?.iamt) + e(t?.samt) + e(t?.camt),
+            TOTAL: 0
+        })
+    }
+    const E = m[0] ?? {};
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 11,
+        Nature: "ITC_Reverse_inRull",
+        in_details: E.ty ?? "-",
+        Taxable: 0,
+        IGST: e(E.iamt),
+        CGST: e(E.camt),
+        SGST: e(E.samt),
+        CESS: e(E.csamt),
+        GST: e(E.iamt) + e(E.samt) + e(E.camt),
+        TOTAL: 0
+    });
+    const I = m[1] ?? {};
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 12,
+        Nature: "ITC_Reverse_Others",
+        in_details: I.ty ?? "-",
+        Taxable: 0,
+        IGST: e(I.iamt),
+        CGST: e(I.camt),
+        SGST: e(I.samt),
+        CESS: e(I.csamt),
+        GST: e(I.iamt) + e(I.samt) + e(I.camt),
+        TOTAL: 0
+    });
+    const f = c[0] ?? {};
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 13,
+        Nature: "Reclaim_Others",
+        in_details: f.ty ?? "-",
+        Taxable: 0,
+        IGST: e(f.iamt),
+        CGST: e(f.camt),
+        SGST: e(f.samt),
+        CESS: e(f.csamt),
+        GST: e(f.iamt) + e(f.samt) + e(f.camt),
+        TOTAL: 0
+    });
+    const A = c[1] ?? {};
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 14,
+        Nature: "InEligible_PoS",
+        in_details: A.ty ?? "-",
+        Taxable: 0,
+        IGST: e(A.iamt),
+        CGST: e(A.camt),
+        SGST: e(A.samt),
+        CESS: e(A.csamt),
+        GST: e(A.iamt) + e(A.samt) + e(A.camt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 15,
+        Nature: "GST Output",
+        in_details: "-",
+        Taxable: 0,
+        IGST: _,
+        CGST: C,
+        SGST: h,
+        CESS: p,
+        GST: g,
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 16,
+        Nature: "GST Input",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(b.iamt),
+        CGST: e(b.camt),
+        SGST: e(b.samt),
+        CESS: e(b.csamt),
+        GST: e(b.iamt) + e(b.camt) + e(b.samt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 17,
+        Nature: "Comp_ITC_IGST",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(G.igst_igst_amt),
+        CGST: e(G.igst_cgst_amt),
+        SGST: e(G.igst_sgst_amt),
+        CESS: 0,
+        GST: e(G.igst_igst_amt) + e(G.igst_cgst_amt) + e(G.igst_sgst_amt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 18,
+        Nature: "Comp_ITC_CGST",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(G.cgst_igst_amt),
+        CGST: e(G.cgst_cgst_amt),
+        SGST: 0,
+        CESS: 0,
+        GST: e(G.cgst_igst_amt) + e(G.cgst_cgst_amt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 19,
+        Nature: "Comp_ITC_SGST",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(G.sgst_igst_amt),
+        CGST: 0,
+        SGST: e(G.sgst_sgst_amt),
+        CESS: 0,
+        GST: e(G.sgst_igst_amt) + e(G.sgst_sgst_amt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 20,
+        Nature: "Comp_ITC_CESS",
+        in_details: "-",
+        Taxable: 0,
+        IGST: 0,
+        CGST: 0,
+        SGST: 0,
+        CESS: e(G.cess_cess_amt),
+        GST: e(G.cess_cess_amt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 21,
+        Nature: "GST Output RCM",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(S.iamt),
+        CGST: e(S.camt),
+        SGST: e(S.samt),
+        CESS: e(S.csamt),
+        GST: e(S.iamt) + e(S.samt) + e(S.camt),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 22,
+        Nature: "Comp_Cash_Bal",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(x.igst_tot_bal),
+        CGST: e(x.cgst_tot_bal),
+        SGST: e(x.sgst_tot_bal),
+        CESS: e(x.cess_tot_bal),
+        GST: e(x.igst_tot_bal) + e(x.cgst_tot_bal) + e(x.sgst_tot_bal) + e(x.cess_tot_bal),
+        TOTAL: 0
+    });
+    const N = F[0] ?? {},
+        O = F[1] ?? {};
+    v.push({
+        FP: n,
+        MNN: d,
+        SL: 23,
+        Nature: "Paid Cash_Tax",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(N?.igst?.tx),
+        CGST: e(N?.cgst?.tx),
+        SGST: e(N?.sgst?.tx),
+        CESS: e(N?.cess?.tx),
+        GST: e(N?.igst?.tx) + e(N?.cgst?.tx) + e(N?.sgst?.tx),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 24,
+        Nature: "Paid Cash_RCM",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(O?.igst?.tx),
+        CGST: e(O?.cgst?.tx),
+        SGST: e(O?.sgst?.tx),
+        CESS: e(O?.cess?.tx),
+        GST: e(O?.igst?.tx) + e(O?.cgst?.tx) + e(O?.sgst?.tx),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 25,
+        Nature: "Paid Cash_Interesst",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(N?.igst?.intr),
+        CGST: e(N?.cgst?.intr),
+        SGST: e(N?.sgst?.intr),
+        CESS: e(N?.cess?.intr),
+        GST: e(N?.igst?.intr) + e(N?.cgst?.intr) + e(N?.sgst?.intr),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 26,
+        Nature: "Paid Cash_Fees & Penalty",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(N?.igst?.fee),
+        CGST: e(N?.cgst?.fee),
+        SGST: e(N?.sgst?.fee),
+        CESS: e(N?.cess?.fee),
+        GST: e(N?.igst?.fee) + e(N?.cgst?.fee) + e(N?.sgst?.fee),
+        TOTAL: 0
+    }), v.push({
+        FP: n,
+        MNN: d,
+        SL: 27,
+        Nature: "Total Paid Cash",
+        in_details: "-",
+        Taxable: 0,
+        IGST: e(N?.igst?.tx) + e(O?.igst?.tx) + e(N?.igst?.intr) + e(N?.igst?.fee),
+        CGST: e(N?.cgst?.tx) + e(O?.cgst?.tx) + e(N?.cgst?.intr) + e(N?.cgst?.fee),
+        SGST: e(N?.sgst?.tx) + e(O?.sgst?.tx) + e(N?.sgst?.intr) + e(N?.sgst?.fee),
+        CESS: e(N?.cess?.tx),
+        GST: e(N?.igst?.tx) + e(O?.igst?.tx) + e(N?.igst?.intr) + e(N?.igst?.fee) + e(N?.cgst?.tx) + e(O?.cgst?.tx) + e(N?.cgst?.intr) + e(N?.cgst?.fee) + e(N?.sgst?.tx) + e(O?.sgst?.tx) + e(N?.sgst?.intr) + e(N?.sgst?.fee) + e(N?.cess?.tx),
+        TOTAL: 0
+    });
+    let B = "<table class='result-tab' style='font-size:18px;'><thead><tr><th>FP</th><th>Nature</th><th>Taxable</th><th>IGST</th><th>CGST</th><th>SGST</th><th>CESS</th><th>GST</th></tr></thead><tbody>",
+        M = "",
+        P = "",
+        R = "",
+        D = "",
+        H = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0
+        },
+        w = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0
+        },
+        k = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0
+        },
+        X = {
+            Taxable: 0,
+            IGST: 0,
+            CGST: 0,
+            SGST: 0,
+            CESS: 0,
+            GST: 0
+        };
+
+    function $(t) {
+        return `<tr style="font-weight:bold">\n        <td></td>\n        <td style="text-align:left">TOTAL</td>\n        <td style="text-align:right">${indianFormat(t.Taxable.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.IGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.CGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.SGST.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.CESS.toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(t.GST.toFixed(2))}</td>\n    </tr>`
+    }
+    v.forEach(((t, a) => {
+        let e = indianFormat(Number(t.GST).toFixed(2)),
+            n = `<tr>\n        <td>${i(t.FP)}</td>\n        <td style="text-align:left">${i(t.Nature)}</td>\n        <td style="text-align:right">${indianFormat(Number(t.Taxable).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.IGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.CGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.SGST).toFixed(2))}</td>\n        <td style="text-align:right">${indianFormat(Number(t.CESS).toFixed(2))}</td>\n        <td style="text-align:right">${e}</td>\n    </tr>`;
+
+        function d(a) {
+            a.Taxable += Number(t.Taxable) || 0, a.IGST += Number(t.IGST) || 0, a.CGST += Number(t.CGST) || 0, a.SGST += Number(t.SGST) || 0, a.CESS += Number(t.CESS) || 0, a.GST += Number(t.GST) || 0
+        }
+        var r;
+        a >= 0 && a <= 4 ? (M += n, d(H)) : a >= 5 && a <= 13 ? (P += n, a <= 9 ? d(w) : a <= 11 && ((r = w).Taxable -= Number(t.Taxable) || 0, r.IGST -= Number(t.IGST) || 0, r.CGST -= Number(t.CGST) || 0, r.SGST -= Number(t.SGST) || 0, r.CESS -= Number(t.CESS) || 0, r.GST -= Number(t.GST) || 0)) : a >= 14 && a <= 20 ? (R += n, d(k)) : a >= 22 && a <= 25 && (D += n, d(X))
+    }));
+    let V = `<tr><td>From a supplier under composition scheme, Exempt, Nil rated supply</td><td>${indianFormat(Number(u?.[0]?.inter).toFixed(2))}</td><td>${indianFormat(Number(u?.[0]?.intra).toFixed(2))}</td></tr><tr><td>Non GST supply</td><td>${indianFormat(Number(u?.[1]?.inter).toFixed(2))}</td><td>${indianFormat(Number(u?.[0]?.intra).toFixed(2))}</td></tr><tr><td></td><td></td><td></td></tr>`;
+    document.getElementById("Liability").innerHTML = B + M + $(H) + "</tbody></table>", document.getElementById("Credit").innerHTML = B + P + $(w) + "</tbody></table>", document.getElementById("Computation").innerHTML = B + R + "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>", document.getElementById("Payments").innerHTML = B + D + $(X) + "</tbody></table>", document.getElementById("inwardsupply").innerHTML = "<table class='result-tab' style='font-size:18px;'><thead><tr><th>Nature of Supplies </th><th>Inter- State supplies</th><th>Intra- State supplies</th></tr></thead><tbody>" + V + "</tbody></table>"
+}
+
+function gstr9(t) {
+    document.getElementById("result").innerHTML = '\n        <h4>GSTR-9 Data View not supported in Extension.</h4>\n        <h3>Please use the Download option to get the JSON file.</h3>\n    '
+}
+
+function gstr9c(t) {
+    document.getElementById("result").innerHTML = '\n        <h4>GSTR-9 Data View not supported in Extension.</h4>\n        <h3>Please use the Download option to get the JSON file.</h3>\n    '
+}
+
+function indianFormat(t) {
+    return (parseFloat(t) || 0).toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })
+}
